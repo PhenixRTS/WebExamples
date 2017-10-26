@@ -1,0 +1,22 @@
+{
+  "name": "phenix-web-examples",
+  "version": "2017.4.0",
+  "license": "Apache-2.0",
+  "private": false,
+  "main": "src",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PhenixRTS/WebExamples.git"
+  },
+  "scripts": {
+    "lint": "eslint ./ —-cache",
+    "lint-fix": "eslint ./ --fix"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": "8.4.0"
+  },
+  "devDependencies": {
+    "eslint": "4.9.0"
+  }
+}

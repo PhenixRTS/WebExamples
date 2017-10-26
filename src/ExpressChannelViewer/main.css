@@ -1,0 +1,7 @@
+.channel-view {
+    background-color: black;
+}
+
+video {
+    object-fit: contain;
+}

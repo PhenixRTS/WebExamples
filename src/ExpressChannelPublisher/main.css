@@ -1,0 +1,17 @@
+.main {
+    text-align: center;
+}
+
+.channel-view {
+    background-color: black;
+}
+
+video {
+    width: 50%;
+    height: 50%;
+    object-fit: cover;
+}
+
+.hide {
+    display: none;
+}
