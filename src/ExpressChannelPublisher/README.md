@@ -8,4 +8,4 @@ Publishing requires webRTC support. This is supported in the most recent version
 
 ## More
 
-[Express API](https://phenixrts.com/docs/#view-a-channel)
+[Express API](https://phenixrts.com/docs/web/#publish-to-a-channel)

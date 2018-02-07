@@ -1,4 +1,4 @@
-# Publish to a Channel
+# View Channel
 
 ## Run
 Open the index.html in a browser.
@@ -9,4 +9,4 @@ Other browsers will fall back to Live Streaming (8+ seconds of latency).
 
 ## More
 
-[Express API](https://phenixrts.com/docs/#publish-to-a-channel)
+[Express API](https://phenixrts.com/docs/web/#view-a-channel)
