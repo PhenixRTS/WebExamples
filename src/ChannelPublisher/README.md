@@ -1,5 +1,7 @@
 # Publish to a Channel
 
+A simple example publishing using the Phenix WebSDK Express APIs for channels.
+
 ## Run
 Open the index.html in a browser.
 

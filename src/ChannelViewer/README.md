@@ -1,5 +1,7 @@
 # View Channel
 
+A simple example viewing a channel using the Phenix WebSDK Express APIs for channels.
+
 ## Run
 Open the index.html in a browser.
 

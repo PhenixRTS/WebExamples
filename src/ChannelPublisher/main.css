@@ -2,14 +2,11 @@
     text-align: center;
 }
 
-.channel-view {
-    background-color: black;
-}
-
 video {
-    width: 50%;
-    height: 50%;
+    width: 66%;
+    height: 66%;
     object-fit: cover;
+    background-color: black;
 }
 
 .hide {

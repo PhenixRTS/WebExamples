@@ -10,26 +10,43 @@ var channelAlias = 'MyChannelAlias';
 // Name that will be seen by all that join
 var channelName = 'Channel Name';
 
-// Authenticate against our demo backend. Not for production scale.
-// See our admin api for more info https://phenixrts.com/docs/#admin-api
+// Authenticate against our demo backend. Not for production use.
+// See our admin api for more info how to setup your own backend
+// https://phenixrts.com/docs/#admin-api
 var backendUri = 'https://phenixrts.com/demo';
 
-// Instantiate the instance of the room express
-var expressRoom = new sdk.express.RoomExpress({
-    backendUri: backendUri,
+var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
+
+adminApiProxyClient.setBackendUri(backendUri);
+
+// Instantiate the instance of the channel express
+var channel = new sdk.express.ChannelExpress({
+    adminApiProxyClient : adminApiProxyClient,
     authenticationData: {
-        userId: 'test-user',
+        userId: 'my-test-user',
         password: 'gYUALIIL8THUNvHi^U^E2f2J'
     }
 });
 
+
 // Include all of the features you would like the stream to have
 // Real-time is always included. For more info see https://phenixrts.com/docs/#supported-stream-capabilities
+// E.g. 'streaming': Live streaming (8+ seconds of latency).
 var publishCapabilities = [
-    'fhd', // Quality
-    'streaming', // Live streaming support (8+ seconds of latency)
-    'prefer-h264' // Video Codec - Support IOS/Safari Real-time
+    'hd', // Quality
+    'multi-bitrate' // ABR for the clients.
 ];
+
+
+try {
+    var params = (new URL(document.location)).searchParams;
+
+    if (params.has('streaming')) {
+        publishCapabilities.push('streaming');
+    }
+} catch (e) {
+    console.error(e);
+}
 
 // Local media to publish (camera and microphone)
 var mediaConstraints = {
@@ -52,16 +69,17 @@ function publish() {
     hideElement(publishButton);
     displayElement(stopButton);
 
-    expressRoom.publishToChannel(publishOptions, function subscriberCallback(error, response) {
+    channel.publishToChannel(publishOptions, function subscriberCallback(error, response) {
         if (error) {
-            setUserMessage('Unable to publish to Channel: ' + error.message);
+            setUserMessage('publishToChannel()::subscriberCallback(error, response) returned error=' + error.message);
             stopPublisher();
 
             throw error;
         }
 
-        if (response.status !== 'ok' && response.status !== 'ended') {
-            setUserMessage('New Status: ' + response.status);
+        setUserMessage('publishToChannel()::subscriberCallback(error, response) returned response.status=' + response.status);
+
+        if (response.status !== 'ok' && response.status !== 'ended' && response.status !== 'stream-ended') {
             stopPublisher();
 
             throw new Error(response.status);
