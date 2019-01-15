@@ -97,12 +97,21 @@ function joinChannel() {
 
                     setStatusMessage('Video failed to play');
 
-                    document.getElementById('playButton').onclick = function () {
-                        setStatusMessage('User triggered play()');
-                        joinChannel();
-                        document.getElementById('playButton').style.display = 'none';
-                    };
-                    document.getElementById('playButton').style.display = '';
+                    if (isMobileAppleDevice) {
+                        // iOS battery saver mode requires user interaction with the <video> to play video
+                        videoElement.onplay = function () {
+                            setStatusMessage('Video play()');
+                            joinChannel();
+                            videoElement.onplay = null;
+                        };
+                    } else {
+                        document.getElementById('playButton').onclick = function () {
+                            setStatusMessage('User triggered play()');
+                            joinChannel();
+                            document.getElementById('playButton').style.display = 'none';
+                        };
+                        document.getElementById('playButton').style.display = '';
+                    }
                 }
             });
 

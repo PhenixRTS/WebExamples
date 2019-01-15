@@ -1,6 +1,6 @@
 {
   "name": "phenix-web-examples",
-  "version": "2019.0.0",
+  "version": "2019.0.1",
   "license": "Apache-2.0",
   "private": false,
   "main": "src",
@@ -10,7 +10,8 @@
   },
   "scripts": {
     "lint": "eslint ./ —-cache",
-    "lint-fix": "eslint ./ --fix"
+    "lint-fix": "eslint ./ --fix",
+    "ci-deploy": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-assets-us/examples/client"
   },
   "dependencies": {},
   "engines": {
