@@ -19,7 +19,7 @@ adminApiProxyClient.setBackendUri(backendUri);
 
 // Instantiate the instance of the channel express
 var channel = new sdk.express.ChannelExpress({
-    adminApiProxyClient : adminApiProxyClient,
+    adminApiProxyClient: adminApiProxyClient,
     authenticationData: {
         userId: 'my-test-user',
         password: 'gYUALIIL8THUNvHi^U^E2f2J'
@@ -98,7 +98,7 @@ function joinChannel() {
                     setStatusMessage('Video failed to play');
 
                     if (isMobileAppleDevice) {
-                        // iOS battery saver mode requires user interaction with the <video> to play video
+                        // IOS battery saver mode requires user interaction with the <video> to play video
                         videoElement.onplay = function () {
                             setStatusMessage('Video play()');
                             joinChannel();

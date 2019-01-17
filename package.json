@@ -1,6 +1,6 @@
 {
   "name": "phenix-web-examples",
-  "version": "2019.0.1",
+  "version": "2019.0.2",
   "license": "Apache-2.0",
   "private": false,
   "main": "src",
@@ -11,11 +11,12 @@
   "scripts": {
     "lint": "eslint ./ —-cache",
     "lint-fix": "eslint ./ --fix",
-    "ci-deploy": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-assets-us/examples/client"
+    "ci-deploy": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-assets-us/examples/",
+    "ci-deploy:staging": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-stg-assets-us/examples/"
   },
   "dependencies": {},
   "engines": {
-    "node": "8.4.0"
+    "node": "10.13.0"
   },
   "devDependencies": {
     "eslint": "4.9.0"
