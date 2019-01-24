@@ -1,3 +1,18 @@
+/**
+ * Copyright 2019 PhenixP2P Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 var sdk = window['phenix-web-sdk'];
 var isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 var isOtherMobile = /Android|webOS|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|CriOS/i.test(navigator.userAgent);
@@ -13,12 +28,27 @@ var channelAlias = 'MyChannelAlias';
 // https://phenixrts.com/docs/#admin-api
 var backendUri = 'https://phenixrts.com/demo';
 
+// Features to use with channel
+// If WebRTC is not supported then fall back to live streaming (~10 second latency) with DASH/HLS
+var features = ['real-time', 'dash', 'hls'];
+
 var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
 
 adminApiProxyClient.setBackendUri(backendUri);
 
+try {
+    var params = (new URL(document.location)).searchParams;
+
+    if (params.has('features')) {
+        features = params.get('features').split(',');
+    }
+} catch (e) {
+    console.error(e);
+}
+
 // Instantiate the instance of the channel express
 var channel = new sdk.express.ChannelExpress({
+    features: features,
     adminApiProxyClient: adminApiProxyClient,
     authenticationData: {
         userId: 'my-test-user',
@@ -26,10 +56,10 @@ var channel = new sdk.express.ChannelExpress({
     }
 });
 
+var disposables = [];
 function joinChannel() {
     channel.joinChannel({
         alias: channelAlias,
-        features: ['real-time', 'dash', 'hls'], // If WebRTC is not supported then fall back to live streaming (~10 second latency) with DASH/HLS
         videoElement: videoElement
     }, function joinChannelCallback(error, response) {
         if (error) {
@@ -55,6 +85,12 @@ function joinChannel() {
             // Do something with channelService
         }
     }, function subscriberCallback(error, response) {
+        for (var i = 0; i < disposables.length; i++) {
+            disposables[i].dispose();
+        }
+
+        disposables.length = 0;
+
         if (error) {
             console.error('Unable to subscribe to channel', error);
 
@@ -81,7 +117,9 @@ function joinChannel() {
         }
 
         if (response.renderer) {
-            response.renderer.on('autoMuted', function handleAutoMuted() {
+            setStatusMessage('Subscribed');
+
+            disposables.push(response.renderer.on('autoMuted', function handleAutoMuted() {
                 // The browser refused to play video with audio therefore the stream was started muted.
                 // Handle this case properly in your UI so that the user can unmute its stream
 
@@ -89,46 +127,41 @@ function joinChannel() {
 
                 // Show button to unmute
                 document.getElementById('unmuteButton').style.display = '';
-            });
+            }));
 
-            response.renderer.on('ended', function handleEnded(reason) {
-                if (reason === 'failed-to-play') {
-                    // Failed to play media stream
+            disposables.push(response.renderer.on('failedToPlay', function handleAutoMuted(reason) {
+                // The browser refused to play video with audio therefore the stream was started muted.
+                // Handle this case properly in your UI so that the user can unmute its stream
 
-                    setStatusMessage('Video failed to play');
+                setStatusMessage('Video failed to play: "' + reason + '"');
 
-                    if (isMobileAppleDevice) {
-                        // IOS battery saver mode requires user interaction with the <video> to play video
-                        videoElement.onplay = function () {
-                            setStatusMessage('Video play()');
-                            joinChannel();
-                            videoElement.onplay = null;
-                        };
-                    } else {
-                        document.getElementById('playButton').onclick = function () {
-                            setStatusMessage('User triggered play()');
-                            joinChannel();
-                            document.getElementById('playButton').style.display = 'none';
-                        };
-                        document.getElementById('playButton').style.display = '';
-                    }
-                }
-            });
-
-            response.renderer.on('userActionRequired', function handleUserActionRequired(reason) {
-                if (reason === 'app-paused-by-background') {
-                    // Unable to resume playback after pause in Safari
-
-                    setStatusMessage('Video was paused by backgrounding');
-
-                    document.getElementById('playButton').onclick = function () {
+                if (isMobileAppleDevice && reason === 'failed-to-play') {
+                    // IOS battery saver mode requires user interaction with the <video> to play video
+                    videoElement.onplay = function() {
+                        setStatusMessage('Video play()');
+                        response.renderer.start(videoElement);
+                        videoElement.onplay = null;
+                    };
+                } else {
+                    document.getElementById('playButton').onclick = function() {
+                        setStatusMessage('User triggered play()');
                         response.renderer.start(videoElement);
                         document.getElementById('playButton').style.display = 'none';
-                        setStatusMessage('');
                     };
                     document.getElementById('playButton').style.display = '';
                 }
-            });
+            }));
+
+            disposables.push(response.renderer.on('ended', function handleEnded(reason) {
+                setStatusMessage('Video ended: "' + reason + '"');
+
+                document.getElementById('playButton').onclick = function() {
+                    setStatusMessage('User triggered play()');
+                    joinChannel();
+                    document.getElementById('playButton').style.display = 'none';
+                };
+                document.getElementById('playButton').style.display = '';
+            }));
         }
     });
 }
@@ -145,7 +178,7 @@ function setStatusMessage(message) {
     statusMessageElement.innerText = message;
 }
 
-document.getElementById('unmuteButton').onclick = function () {
+document.getElementById('unmuteButton').onclick = function() {
     document.getElementById('myVideoId').muted = false;
     document.getElementById('unmuteButton').style.display = 'none';
     setStatusMessage('');

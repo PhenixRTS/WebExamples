@@ -1,6 +1,6 @@
 {
   "name": "phenix-web-examples",
-  "version": "2019.0.2",
+  "version": "2019.2.0",
   "license": "Apache-2.0",
   "private": false,
   "main": "src",
@@ -9,16 +9,17 @@
     "url": "https://github.com/PhenixRTS/WebExamples.git"
   },
   "scripts": {
+    "ci-deploy": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-assets-us/examples",
+    "ci-deploy:staging": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-stg-assets-us/examples",
     "lint": "eslint ./ —-cache",
-    "lint-fix": "eslint ./ --fix",
-    "ci-deploy": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-assets-us/examples/",
-    "ci-deploy:staging": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-stg-assets-us/examples/"
+    "lint-fix": "eslint ./ --fix"
   },
   "dependencies": {},
   "engines": {
     "node": "10.13.0"
   },
   "devDependencies": {
-    "eslint": "4.9.0"
+    "eslint": "4.9.0",
+    "eslint-plugin-notice": "0.7.7"
   }
 }

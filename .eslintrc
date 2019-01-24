@@ -5,7 +5,8 @@
     "env": {
         "browser": true,
         "amd": true,
-        "mocha": true
+        "mocha": true,
+        "es6": false
     },
     "globals": {
         "sinon": true,
@@ -17,7 +18,9 @@
         "ecmaVersion": 3,
         "sourceType": "module"
     },
-    "plugins": [],
+    "plugins": [
+        "notice"
+    ],
     "rules" : {
         // Possible Errors - http://eslint.org/docs/rules/#possible-errors
         "no-console": 0,
@@ -29,6 +32,7 @@
         "no-alert": 2,
         "no-else-return": 2,
         "no-multi-spaces": 2,
+        "no-unused-vars": ["error", { "varsIgnorePattern": "[iI]gnored" }],
         "yoda": 2,
 
         // Stylistic Issues - http://eslint.org/docs/rules/#stylistic-issues
@@ -52,7 +56,7 @@
         "func-call-spacing": [2, "never"],
         "key-spacing": [2, {"beforeColon": false}],
         "new-parens": 2,
-        "no-multiple-empty-lines": [2, { "max": 1 }],
+        "no-multiple-empty-lines": ["error", { "max": 1 }],
         "no-trailing-spaces": 2,
         "object-curly-newline": [2, { "multiline": true }],
         "object-curly-spacing": [2, "never"],
@@ -65,17 +69,23 @@
             { "blankLine": "always", "prev": "function", "next": ["function", "block-like", "multiline-block-like"] },
             { "blankLine": "always", "prev": "class", "next": "*" },
             { "blankLine": "never", "prev": ["const", "let"], "next": ["const", "let"] },
-            { "blankLine": "never", "prev": "block-like", "next": "*" },
+            { "blankLine": "always", "prev": "block-like", "next": "*" },
             { "blankLine": "always", "prev": "block", "next": "*" },
             { "blankLine": "always", "prev": "multiline-block-like", "next": "*" },
             { "blankLine": "always", "prev": "expression", "next": "*" },
             { "blankLine": "any", "prev": "expression", "next": "expression" }
         ],
         "semi": [2, "always"],
+        "space-before-function-paren": ["error", "never"],
         "space-infix-ops": ["error", {"int32Hint": false}],
         "spaced-comment": [2, "always"],
 
         // Rules specific to this module
-        "indent": [2, 4]
+        "indent": [2, 4],
+        "notice/notice":["error", {
+            "mustMatch": "Copyright 2019 PhenixP2P Inc.",
+            "templateFile": "copyright.tmpl",
+            "onNonMatchingHeader": "replace"
+        }],
     }
 }
