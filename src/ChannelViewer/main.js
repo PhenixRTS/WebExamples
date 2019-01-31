@@ -35,6 +35,10 @@ var features = ['real-time', 'dash', 'hls'];
 var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
 
 adminApiProxyClient.setBackendUri(backendUri);
+adminApiProxyClient.setAuthenticationData({
+  userId: 'my-test-user',
+  password: 'gYUALIIL8THUNvHi^U^E2f2J'
+});
 
 try {
     var params = (new URL(document.location)).searchParams;
@@ -49,11 +53,7 @@ try {
 // Instantiate the instance of the channel express
 var channel = new sdk.express.ChannelExpress({
     features: features,
-    adminApiProxyClient: adminApiProxyClient,
-    authenticationData: {
-        userId: 'my-test-user',
-        password: 'gYUALIIL8THUNvHi^U^E2f2J'
-    }
+    adminApiProxyClient: adminApiProxyClient
 });
 
 var disposables = [];
@@ -129,7 +129,7 @@ function joinChannel() {
                 document.getElementById('unmuteButton').style.display = '';
             }));
 
-            disposables.push(response.renderer.on('failedToPlay', function handleAutoMuted(reason) {
+            disposables.push(response.renderer.on('failedToPlay', function handleFailedToPlay(reason) {
                 // The browser refused to play video with audio therefore the stream was started muted.
                 // Handle this case properly in your UI so that the user can unmute its stream
 
