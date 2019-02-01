@@ -36,15 +36,17 @@ var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
 
 adminApiProxyClient.setBackendUri(backendUri);
 adminApiProxyClient.setAuthenticationData({
-  userId: 'my-test-user',
-  password: 'gYUALIIL8THUNvHi^U^E2f2J'
+    userId: 'my-test-user',
+    password: 'gYUALIIL8THUNvHi^U^E2f2J'
 });
 
 try {
-    var params = (new URL(document.location)).searchParams;
+    var params = window.location.search.substring(1).split('&');
 
-    if (params.has('features')) {
-        features = params.get('features').split(',');
+    for (var i = 0; i < params.length; i++) {
+        if (params[i].indexOf('features=') === 0) {
+            features = params[i].substring('features='.length).split(',');
+        }
     }
 } catch (e) {
     console.error(e);
