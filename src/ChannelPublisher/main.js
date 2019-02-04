@@ -33,15 +33,13 @@ var backendUri = 'https://phenixrts.com/demo';
 var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
 
 adminApiProxyClient.setBackendUri(backendUri);
+adminApiProxyClient.setAuthenticationData({
+    userId: 'my-test-user',
+    password: 'gYUALIIL8THUNvHi^U^E2f2J'
+});
 
 // Instantiate the instance of the channel express
-var channel = new sdk.express.ChannelExpress({
-    adminApiProxyClient: adminApiProxyClient,
-    authenticationData: {
-        userId: 'my-test-user',
-        password: 'gYUALIIL8THUNvHi^U^E2f2J'
-    }
-});
+var channel = new sdk.express.ChannelExpress({adminApiProxyClient: adminApiProxyClient});
 
 // Include all of the features you would like the stream to have
 // Real-time is always included. For more info see https://phenixrts.com/docs/#supported-stream-capabilities
