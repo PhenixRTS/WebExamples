@@ -52,7 +52,8 @@ try {
     console.error(e);
 }
 
-// Instantiate the instance of the channel express
+// Instantiate the instance of the ChannelExpress
+// IMPORTANT: This should happen at the earliest possible time after the app is started.
 var channel = new sdk.express.ChannelExpress({
     features: features,
     adminApiProxyClient: adminApiProxyClient
@@ -132,8 +133,8 @@ function joinChannel() {
             }));
 
             disposables.push(response.renderer.on('failedToPlay', function handleFailedToPlay(reason) {
-                // The browser refused to play video with audio therefore the stream was started muted.
-                // Handle this case properly in your UI so that the user can unmute its stream
+                // The browser refused to play video even with audio muted.
+                // Handle this case properly in your UI so that the user can start their stream.
 
                 setStatusMessage('Video failed to play: "' + reason + '"');
 
