@@ -26,24 +26,25 @@ var channelAlias = 'MyChannelAlias';
 // Authenticate against our demo backend. Not for production use.
 // See our admin api for more info how to setup your own backend
 // https://phenixrts.com/docs/#admin-api
-var backendUri = 'https://phenixrts.com/demo';
+var backendUri = 'https://demo-integration.phenixrts.com/pcast';
 
 // Features to use with channel
 // If WebRTC is not supported then fall back to live streaming (~10 second latency) with DASH/HLS
 var features = ['real-time', 'dash', 'hls'];
 
-var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
-
-adminApiProxyClient.setBackendUri(backendUri);
-adminApiProxyClient.setAuthenticationData({
-    userId: 'my-test-user',
-    password: 'gYUALIIL8THUNvHi^U^E2f2J'
-});
-
+// Support customizations
 try {
     var params = window.location.search.substring(1).split('&');
 
     for (var i = 0; i < params.length; i++) {
+        if (params[i].indexOf('channelAlias=') === 0) {
+            channelAlias = params[i].substring('channelAlias='.length);
+        }
+
+        if (params[i].indexOf('backendUri=') === 0) {
+            backendUri = params[i].substring('backendUri='.length);
+        }
+
         if (params[i].indexOf('features=') === 0) {
             features = params[i].substring('features='.length).split(',');
         }
@@ -51,6 +52,14 @@ try {
 } catch (e) {
     console.error(e);
 }
+
+var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
+
+adminApiProxyClient.setBackendUri(backendUri);
+adminApiProxyClient.setAuthenticationData({
+    userId: 'my-user-id-that-is-NOT-related-to-application-id',
+    password: 'my-password-that-is-NOT-related-to-secret'
+});
 
 // Instantiate the instance of the ChannelExpress
 // IMPORTANT: This should happen at the earliest possible time after the app is started.

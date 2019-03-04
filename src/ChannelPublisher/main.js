@@ -28,18 +28,7 @@ var channelName = 'Channel Name';
 // Authenticate against our demo backend. Not for production use.
 // See our admin api for more info how to setup your own backend
 // https://phenixrts.com/docs/#admin-api
-var backendUri = 'https://phenixrts.com/demo';
-
-var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
-
-adminApiProxyClient.setBackendUri(backendUri);
-adminApiProxyClient.setAuthenticationData({
-    userId: 'my-test-user',
-    password: 'gYUALIIL8THUNvHi^U^E2f2J'
-});
-
-// Instantiate the instance of the channel express
-var channel = new sdk.express.ChannelExpress({adminApiProxyClient: adminApiProxyClient});
+var backendUri = 'https://demo-integration.phenixrts.com/pcast';
 
 // Include all of the features you would like the stream to have
 // Real-time is always included. For more info see https://phenixrts.com/docs/#supported-stream-capabilities
@@ -49,23 +38,47 @@ var publishCapabilities = [
     'multi-bitrate' // ABR for the clients.
 ];
 
-try {
-    var params = (new URL(document.location)).searchParams;
-
-    if (params.has('capabilities')) {
-        publishCapabilities = params.get('capabilities').split(',');
-    } else if (params.has('streaming')) {
-        publishCapabilities.push('streaming');
-    }
-} catch (e) {
-    console.error(e);
-}
-
 // Local media to publish (camera and microphone)
 var mediaConstraints = {
     video: true, // Include camera
     audio: true // Include microphone
 };
+
+// Support customizations
+try {
+    var params = window.location.search.substring(1).split('&');
+
+    for (var i = 0; i < params.length; i++) {
+        if (params[i].indexOf('channelAlias=') === 0) {
+            channelAlias = params[i].substring('channelAlias='.length);
+        }
+
+        if (params[i].indexOf('backendUri=') === 0) {
+            backendUri = params[i].substring('backendUri='.length);
+        }
+
+        if (params[i].indexOf('capabilities=') === 0) {
+            publishCapabilities = params[i].substring('capabilities='.length).split(',');
+        }
+
+        if (params[i] === 'streaming') {
+            publishCapabilities.push('streaming');
+        }
+    }
+} catch (e) {
+    console.error(e);
+}
+
+var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
+
+adminApiProxyClient.setBackendUri(backendUri);
+adminApiProxyClient.setAuthenticationData({
+    userId: 'my-user-id-that-is-NOT-related-to-application-id',
+    password: 'my-password-that-is-NOT-related-to-secret'
+});
+
+// Instantiate the instance of the channel express
+var channel = new sdk.express.ChannelExpress({adminApiProxyClient: adminApiProxyClient});
 
 // Publish local media to room
 function publish() {
