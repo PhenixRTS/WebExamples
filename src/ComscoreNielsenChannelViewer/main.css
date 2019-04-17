@@ -1,0 +1,12 @@
+.main {
+    text-align: center;
+}
+
+video {
+    max-height: 720px;
+    max-width: 1280px;
+    width: 66%;
+    height: 66%;
+    object-fit: cover;
+    background: white url(http://phenixrts.com/assets/images/bird-color.png) 50% 50% no-repeat;
+}

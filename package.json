@@ -11,8 +11,8 @@
   "scripts": {
     "ci-deploy": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-assets-us/examples",
     "ci-deploy:staging": "gsutil -h \"Cache-Control:public, max-age=0\" -m cp -R src/* gs://phenix-stg-assets-us/examples",
-    "lint": "eslint ./ —-cache",
-    "lint-fix": "eslint ./ --fix"
+    "lint": "eslint ./ —-cache --ignore-pattern *.min.js",
+    "lint-fix": "eslint ./ --ignore-pattern *.min.js --fix"
   },
   "dependencies": {},
   "engines": {
