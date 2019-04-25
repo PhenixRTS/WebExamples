@@ -1,6 +1,6 @@
 {
   "name": "phenix-web-examples",
-  "version": "2019.2.4",
+  "version": "2019.2.5",
   "license": "Apache-2.0",
   "private": false,
   "main": "src",
@@ -16,7 +16,7 @@
   },
   "dependencies": {},
   "engines": {
-    "node": "10.13.0"
+    "node": "10.15.3"
   },
   "devDependencies": {
     "eslint": "4.9.0",
