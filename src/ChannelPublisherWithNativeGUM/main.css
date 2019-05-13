@@ -1,0 +1,14 @@
+.main {
+    text-align: center;
+}
+
+video {
+    width: 66%;
+    height: 66%;
+    object-fit: cover;
+    background-color: black;
+}
+
+.hide {
+    display: none;
+}

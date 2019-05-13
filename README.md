@@ -11,6 +11,10 @@ For more information on how to use our APIs, please refer to our [documentation]
 
 * [Publish to a Channel](./src/ChannelPublisher)
 
+* [Publish native GUM to a Channel](./src/ChannelPublisherWithNativeGUM)
+
 * [View a Channel](./src/ChannelViewer)
+
+* [View a Channel with Comscore and Nielsen tracker](./src/ComscoreNielsenChannelViewer)
 
 
