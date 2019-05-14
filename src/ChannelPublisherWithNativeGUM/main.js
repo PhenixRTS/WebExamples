@@ -71,7 +71,7 @@ try {
         }
 
         if (params[i].indexOf('height=') === 0) {
-            mediaConstraints.video.width = parseInt(params[i].substring('height='.length), 10);
+            mediaConstraints.video.height = parseInt(params[i].substring('height='.length), 10);
         }
 
         if (params[i] === 'streaming') {
