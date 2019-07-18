@@ -33,6 +33,8 @@ var backendUri = 'https://demo-integration.phenixrts.com/pcast';
 // If WebRTC is not supported then fall back to live streaming (~10 second latency) with DASH/HLS
 var features = ['real-time', 'dash', 'hls'];
 
+var treatBackgroundAsOffline = false;
+
 // Support customizations
 try {
     var params = window.location.search.substring(1).split('&');
@@ -48,6 +50,10 @@ try {
 
         if (params[i].indexOf('features=') === 0) {
             features = params[i].substring('features='.length).split(',');
+        }
+
+        if (params[i] === 'treatBackgroundAsOffline') {
+            treatBackgroundAsOffline = true;
         }
     }
 } catch (e) {
@@ -66,6 +72,7 @@ adminApiProxyClient.setAuthenticationData({
 // IMPORTANT: This should happen at the earliest possible time after the app is started.
 var channel = new sdk.express.ChannelExpress({
     features: features,
+    treatBackgroundAsOffline: treatBackgroundAsOffline,
     adminApiProxyClient: adminApiProxyClient
 });
 
