@@ -33,33 +33,6 @@ var backendUri = 'https://demo-integration.phenixrts.com/pcast';
 // If WebRTC is not supported then fall back to live streaming (~10 second latency) with DASH/HLS
 var features = ['real-time', 'dash', 'hls'];
 
-var treatBackgroundAsOffline = false;
-
-// Support customizations
-try {
-    var params = window.location.search.substring(1).split('&');
-
-    for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('channelAlias=') === 0) {
-            channelAlias = params[i].substring('channelAlias='.length);
-        }
-
-        if (params[i].indexOf('backendUri=') === 0) {
-            backendUri = params[i].substring('backendUri='.length);
-        }
-
-        if (params[i].indexOf('features=') === 0) {
-            features = params[i].substring('features='.length).split(',');
-        }
-
-        if (params[i] === 'treatBackgroundAsOffline') {
-            treatBackgroundAsOffline = true;
-        }
-    }
-} catch (e) {
-    console.error(e);
-}
-
 var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
 
 adminApiProxyClient.setBackendUri(backendUri);
@@ -68,24 +41,66 @@ adminApiProxyClient.setAuthenticationData({
     password: 'my-password-that-is-NOT-related-to-secret'
 });
 
+var channelExpressOptions = {
+    features: features,
+    adminApiProxyClient: adminApiProxyClient
+};
+
+var joinChannelOptions = {
+    alias: channelAlias,
+    videoElement: videoElement,
+    // Select the most recent publisher in the channel
+    streamSelectionStrategy: 'most-recent'
+    // Alternatively, select one of multiple High-Availability publishers in the channel
+    // streamSelectionStrategy: 'high-availability'
+}
+
+// Support customizations
+try {
+    var params = window.location.search.substring(1).split('&');
+
+    for (var i = 0; i < params.length; i++) {
+        if (params[i].indexOf('channelAlias=') === 0) {
+            joinChannelOptions.alias = params[i].substring('channelAlias='.length);
+        }
+
+        if (params[i].indexOf('backendUri=') === 0) {
+            adminApiProxyClient.setBackendUri(params[i].substring('backendUri='.length));
+        }
+
+        if (params[i].indexOf('features=') === 0) {
+            channelExpressOptions.features = params[i].substring('features='.length).split(',');
+        }
+
+        if (params[i] === 'treatBackgroundAsOffline') {
+            channelExpressOptions.treatBackgroundAsOffline = true;
+        }
+
+        if (params[i].indexOf('edgeAuthToken=') === 0) {
+            // Use EdgeAuth token instead of backend
+            var edgeAuthToken = params[i].substring('edgeAuthToken='.length);
+
+            channelExpressOptions.authToken = edgeAuthToken;
+            joinChannelOptions.skipRetryOnUnauthorized = true;
+            joinChannelOptions.streamToken = edgeAuthToken;
+
+            channelExpressOptions.adminApiProxyClient = new sdk.net.AdminApiProxyClient();
+            channelExpressOptions.adminApiProxyClient.setRequestHandler(function handleRequestCallback(requestType, data, callback) {
+                return callback('unauthorized');
+            });
+        }
+    }
+} catch (e) {
+    console.error(e);
+}
+
 // Instantiate the instance of the ChannelExpress
 // IMPORTANT: This should happen at the earliest possible time after the app is started.
-var channel = new sdk.express.ChannelExpress({
-    features: features,
-    treatBackgroundAsOffline: treatBackgroundAsOffline,
-    adminApiProxyClient: adminApiProxyClient
-});
+var channel = new sdk.express.ChannelExpress(channelExpressOptions);
 
 var disposables = [];
 function joinChannel() {
-    channel.joinChannel({
-        alias: channelAlias,
-        videoElement: videoElement,
-        // Select the most recent publisher in the channel
-        streamSelectionStrategy: 'most-recent'
-        // Alternatively, select one of multiple High-Availability publishers in the channel
-        // streamSelectionStrategy: 'high-availability'
-    }, function joinChannelCallback(error, response) {
+    channel.joinChannel(joinChannelOptions, function joinChannelCallback(error, response) {
         if (error) {
             console.error('Unable to join channel', error);
 

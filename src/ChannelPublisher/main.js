@@ -45,31 +45,6 @@ var mediaConstraints = {
     audio: true // Include microphone
 };
 
-// Support customizations
-try {
-    var params = window.location.search.substring(1).split('&');
-
-    for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('channelAlias=') === 0) {
-            channelAlias = params[i].substring('channelAlias='.length);
-        }
-
-        if (params[i].indexOf('backendUri=') === 0) {
-            backendUri = params[i].substring('backendUri='.length);
-        }
-
-        if (params[i].indexOf('capabilities=') === 0) {
-            publishCapabilities = params[i].substring('capabilities='.length).split(',');
-        }
-
-        if (params[i] === 'streaming') {
-            publishCapabilities.push('streaming');
-        }
-    }
-} catch (e) {
-    console.error(e);
-}
-
 var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
 
 adminApiProxyClient.setBackendUri(backendUri);
@@ -78,21 +53,52 @@ adminApiProxyClient.setAuthenticationData({
     password: 'my-password-that-is-NOT-related-to-secret'
 });
 
+var channelExpressOptions = {adminApiProxyClient: adminApiProxyClient};
+
+var publishOptions = {
+    capabilities: publishCapabilities,
+    room: {
+        alias: channelAlias,
+        name: channelName
+    },
+    mediaConstraints: mediaConstraints,
+    videoElement: videoElement
+};
+
+// Support customizations
+try {
+    var params = window.location.search.substring(1).split('&');
+
+    for (var i = 0; i < params.length; i++) {
+        if (params[i].indexOf('channelAlias=') === 0) {
+            publishOptions.room.alias = params[i].substring('channelAlias='.length);
+        }
+
+        if (params[i].indexOf('backendUri=') === 0) {
+            adminApiProxyClient.setBackendUri(params[i].substring('backendUri='.length));
+        }
+
+        if (params[i].indexOf('capabilities=') === 0) {
+            publishOptions.publishCapabilities = params[i].substring('capabilities='.length).split(',');
+        }
+
+        if (params[i] === 'streaming') {
+            publishOptions.publishCapabilities.push('streaming');
+        }
+
+        if (params[i] === 'disableWildcardTokenGeneration') {
+            publishOptions.enableWildcardCapability = false;
+        }
+    }
+} catch (e) {
+    console.error(e);
+}
+
 // Instantiate the instance of the channel express
-var channel = new sdk.express.ChannelExpress({adminApiProxyClient: adminApiProxyClient});
+var channel = new sdk.express.ChannelExpress(channelExpressOptions);
 
 // Publish local media to room
 function publish() {
-    var publishOptions = {
-        capabilities: publishCapabilities,
-        room: {
-            alias: channelAlias,
-            name: channelName
-        },
-        mediaConstraints: mediaConstraints,
-        videoElement: videoElement
-    };
-
     hideElement(publishButton);
     displayElement(stopButton);
 
