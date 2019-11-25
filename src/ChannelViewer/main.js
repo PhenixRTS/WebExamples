@@ -53,7 +53,7 @@ var joinChannelOptions = {
     streamSelectionStrategy: 'most-recent'
     // Alternatively, select one of multiple High-Availability publishers in the channel
     // streamSelectionStrategy: 'high-availability'
-}
+};
 
 // Support customizations
 try {
@@ -77,16 +77,18 @@ try {
         }
 
         if (params[i].indexOf('edgeAuthToken=') === 0) {
-            // Use EdgeAuth token instead of backend
+            // Use EdgeAuth token instead  for auth and stream
             var edgeAuthToken = params[i].substring('edgeAuthToken='.length);
 
             channelExpressOptions.authToken = edgeAuthToken;
-            joinChannelOptions.skipRetryOnUnauthorized = true;
             joinChannelOptions.streamToken = edgeAuthToken;
 
             channelExpressOptions.adminApiProxyClient = new sdk.net.AdminApiProxyClient();
             channelExpressOptions.adminApiProxyClient.setRequestHandler(function handleRequestCallback(requestType, data, callback) {
-                return callback('unauthorized');
+                // The SDK made a request for a token b/c using of edge token failed.
+                // The default behavior is to return 'unauthorized' which results in the stream being offline.
+                // This should trigger the customer's custom authentication workflow.
+                return callback(null, {status: 'unauthorized'});
             });
         }
     }
