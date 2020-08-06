@@ -3,8 +3,8 @@
 }
 
 video {
-    width: 66%;
-    height: 66%;
+    width: 62vw;
+    height: 62%;
     object-fit: cover;
     background-color: black;
 }

@@ -2,7 +2,7 @@
     text-align: center;
 }
 
-video {
+iframe {
     width: 62vw;
     height: 62%;
     object-fit: cover;

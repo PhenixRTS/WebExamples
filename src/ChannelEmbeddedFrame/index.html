@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Channel</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body class="main">
+    <h1>Phenix Channel iFrame Example</h1>
+    <iframe src="https://demo.phenixrts.com/channel/#MyChannelAlias" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen webkitallowfullscreen>
+        <p>Your browser does not support iframes.</p>
+    </iframe>
+    <script>
+        window.addEventListener("message", receiveMessage, false);
+
+        function receiveMessage(event) {
+            console.log({timeStamp: event.timeStamp, data: event.data});
+        }
+    </script>
+</body>
+</html>
