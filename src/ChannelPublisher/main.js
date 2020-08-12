@@ -79,11 +79,11 @@ try {
         }
 
         if (params[i].indexOf('capabilities=') === 0) {
-            publishOptions.publishCapabilities = params[i].substring('capabilities='.length).split(',');
+            publishOptions.capabilities = params[i].substring('capabilities='.length).split(',');
         }
 
         if (params[i] === 'streaming') {
-            publishOptions.publishCapabilities.push('streaming');
+            publishOptions.capabilities.push('streaming');
         }
 
         if (params[i] === 'disableWildcardTokenGeneration') {

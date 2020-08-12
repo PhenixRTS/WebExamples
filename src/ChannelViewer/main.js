@@ -91,6 +91,30 @@ try {
                 return callback(null, {status: 'unauthorized'});
             });
         }
+
+        if (params[i] === 'shaka') {
+            channelExpressOptions.shakaLoader = function(callback) {
+                var script = document.createElement('script');
+                script.onload = function() {
+                    callback(window.shaka);
+                };
+                script.src = 'https://ajax.googleapis.com/ajax/libs/shaka-player/2.5.14/shaka-player.compiled.js';
+
+                document.head.appendChild(script);
+            };
+        }
+
+        if (params[i] === 'webPlayer') {
+            channelExpressOptions.webPlayerLoader = function(callback) {
+                var script = document.createElement('script');
+                script.onload = function() {
+                    callback(window['phenix-web-player']);
+                };
+                script.src = 'https://dl.phenixrts.com/WebPlayer/2020.0.latest/phenix-web-player-bundled.min.js';
+
+                document.head.appendChild(script);
+            };
+        }
     }
 } catch (e) {
     console.error(e);
