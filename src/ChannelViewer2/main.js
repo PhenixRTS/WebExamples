@@ -13,25 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const phenix = window['phenix'];
-const isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-let token = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IjlDQis2TzNpWUJMWVkydUtaaUJnRjRPaGY1OW9nZkt2R1lwTkc5TlhkeEl3eFRRc0NhalZFMWRQMXRQOWVkaWRCRUdUM2dkdk91WWJiSjVsZ2dWeFF3PT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI1OTg4ODg0MzkzLFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy1ub3J0aGVhc3QjZGVtbyNwaGVuaXhXZWJzaXRlRGVtb1wifSJ9';
+var phenix = window['phenix'];
+var isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+var token = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IjlDQis2TzNpWUJMWVkydUtaaUJnRjRPaGY1OW9nZkt2R1lwTkc5TlhkeEl3eFRRc0NhalZFMWRQMXRQOWVkaWRCRUdUM2dkdk91WWJiSjVsZ2dWeFF3PT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI1OTg4ODg0MzkzLFwicmVxdWlyZWRUYWdcIjpcImNoYW5uZWxJZDp1cy1ub3J0aGVhc3QjZGVtbyNwaGVuaXhXZWJzaXRlRGVtb1wifSJ9';
 
-token = new URLSearchParams(location.search).get('token') || token;
+if (window.location && window.location.search) {
+    var params = window.location.search.substring(1).split('&');
+    for (var i = 0; i < params.length; i++) {
+        if (params[i].indexOf('token=') === 0) {
+            token = params[i].substring('token='.length);
+        }
+    }
+}
 
-const videoElement = document.getElementsByTagName('video')[0];
-const channel = phenix.Channels.createChannel({
-    videoElement,
-    token
+var videoElement = document.getElementsByTagName('video')[0];
+var channel = phenix.Channels.createChannel({
+    videoElement: videoElement,
+    token: token
 });
 
-document.getElementById('unmuteButton').onclick = () => {
+document.getElementById('unmuteButton').onclick = function() {
     document.getElementById('myVideoId').muted = false;
     document.getElementById('unmuteButton').style.display = 'none';
     setUserMessage('');
 };
 
-document.getElementById('playButton').onclick = () => {
+document.getElementById('playButton').onclick = function() {
     setUserMessage('User triggered play()');
     channel.play(videoElement);
     document.getElementById('playButton').style.display = 'none';
@@ -49,11 +56,11 @@ function setStatusMessage(message) {
     statusMessageElement.innerText = message;
 }
 
-channel.state.subscribe(state => {
+channel.state.subscribe(function(state) {
     setStatusMessage(phenix.ChannelState[state]);
 });
 
-channel.autoMuted.subscribe(autoMuted => {
+channel.autoMuted.subscribe(function(autoMuted) {
     if (autoMuted) {
         setUserMessage('Video was automatically muted');
 
@@ -62,7 +69,7 @@ channel.autoMuted.subscribe(autoMuted => {
     }
 });
 
-channel.autoPaused.subscribe(autoPaused => {
+channel.autoPaused.subscribe(function(autoPaused) {
     if (autoPaused) {
         setUserMessage('Video was automatically paused');
 
