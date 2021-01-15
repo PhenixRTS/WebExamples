@@ -49,7 +49,7 @@ function setStatusMessage(message) {
     statusMessageElement.innerText = message;
 }
 
-channel.state.subscribe((state) => {
+channel.state.subscribe(state => {
     setStatusMessage(phenix.ChannelState[state]);
 });
 
