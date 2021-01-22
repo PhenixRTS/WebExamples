@@ -33,7 +33,7 @@ var channel = phenix.Channels.createChannel({
 });
 
 document.getElementById('unmuteButton').onclick = function() {
-    document.getElementById('myVideoId').muted = false;
+    channel.unmute();
     document.getElementById('unmuteButton').style.display = 'none';
     setUserMessage('');
 };
