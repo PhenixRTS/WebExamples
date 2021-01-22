@@ -40,7 +40,7 @@ document.getElementById('unmuteButton').onclick = function() {
 
 document.getElementById('playButton').onclick = function() {
     setUserMessage('User triggered play()');
-    channel.play(videoElement);
+    channel.play();
     document.getElementById('playButton').style.display = 'none';
 };
 
