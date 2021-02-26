@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Channel</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://dl.phenixrts.com/WebSDK/2020.2.30/phenix-web-sdk.min.js"></script>
+    <script>
+        var __phenixPageLoadTime = new Date().getTime();
+    </script>
+</head>
+<body>
+    <div class="control-row">
+        <div class="control-container">
+            <button id="publishAndJoinRoomButton">Start Chat</button>
+            <button id="stopButton" class="hide">Leave Room</button>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="members-container"></div>
+        <div class="self-container"></div>
+    </div>
+    <script src="main.js"></script>
+
+</body>
+</html>
