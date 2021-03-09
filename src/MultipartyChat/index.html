@@ -12,15 +12,22 @@
 <body>
     <div class="control-row">
         <div class="control-container">
+            <input id="screenName" placeholder="Screen Name"/>
+            <select id="numberOfVideos" placeholder="# of Videos">
+                <option value="2">2</option>
+                <option value="6">6</option>
+                <option value="8" selected="selected">8</option>
+                <option value="12">12</option>
+            </select>
             <button id="publishAndJoinRoomButton">Start Chat</button>
             <button id="stopButton" class="hide">Leave Room</button>
         </div>
     </div>
-
     <div class="main">
         <div class="members-container"></div>
         <div class="self-container"></div>
     </div>
+
     <script src="main.js"></script>
 
 </body>
