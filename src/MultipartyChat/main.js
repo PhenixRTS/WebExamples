@@ -34,6 +34,7 @@ var membersStore = [];
 var memberSubscriptions = {};
 var memberVideoSubscriptions = {};
 var videoSubscribers = 1;
+var timeoutId = null;
 var maxVideoSubscribers = 8;
 var queryParameters = {};
 
@@ -92,6 +93,7 @@ var init = function() {
         }
 
         screenName = name + '.' + Math.floor(Math.random() * 10000) + 1;
+
         joinRoom(function() {
             if (videoSources.length === 0 || audioSources.length === 0) {
                 return console.error('Sources not available yet');
@@ -104,7 +106,6 @@ var init = function() {
             var videoElement = createVideo();
             var publishOptions = {
                 enableWildcardCapability: false,
-                capabilities: [],
                 room: {
                     roomId: roomId,
                     type: 'MultiPartyChat'
@@ -144,8 +145,13 @@ var init = function() {
         return roomExpress.publishToRoom(options, function(error, response) {
             if (error) {
                 console.error('Unable to publish to Room: ' + error.message);
+                reconnect();
 
-                throw error;
+                return;
+            }
+
+            if (response.status === 'client-side-failure') {
+                reconnect();
             }
 
             if (response.status !== 'ok' && response.status !== 'ended') {
@@ -186,7 +192,7 @@ var init = function() {
             roomService = response.roomService;
             callback();
         }, function membersChangedCallback(members) { // This is triggered every time a member joins or leaves
-            console.log('Members updated, count=[' + members.length + ']', members);
+            console.log('Members updated, count=[' + members.length + ']');
 
             removeOldMembers(members);
             addNewMembers(members);
@@ -224,50 +230,40 @@ var init = function() {
     }
 
     function removeMemberStream(memberStream, memberSessionId) {
-        var memberSubscriptionToRemove = memberSubscriptions[memberSessionId].find(function(memberSubscription) {
-            return memberStream.getPCastStreamId() === memberSubscription.memberStream.getPCastStreamId();
-        });
-
-        memberSubscriptions[memberSessionId] = memberSubscriptions[memberSessionId].filter(function(memberSubscription) {
-            return memberStream.getPCastStreamId() !== memberSubscription.memberStream.getPCastStreamId();
-        });
-
-        if (memberSubscriptionToRemove) {
-            memberSubscriptionToRemove.mediaStream.stop();
-            memberSubscriptionToRemove.videoElement.remove();
-
-            if (memberSubscriptionToRemove.container) {
-                memberSubscriptionToRemove.container.remove();
-            }
-
-            return true;
+        if (!memberSubscriptions[memberSessionId].length) {
+            return false;
         }
 
-        return false;
+        memberSubscriptions[memberSessionId].forEach(function(memberSubscriptionToRemove) {
+            if (memberSubscriptionToRemove) {
+                memberSubscriptionToRemove.mediaStream.stop();
+                memberSubscriptionToRemove.videoElement.remove();
+
+                if (memberSubscriptionToRemove.container) {
+                    memberSubscriptionToRemove.container.remove();
+                }
+            }
+        });
+
+        return true;
     }
 
     function removeVideoMemberStream(memberStream, memberSessionId) {
-        var memberSubscriptionToRemove = memberVideoSubscriptions[memberSessionId].find(function(memberSubscription) {
-            return memberStream.getPCastStreamId() === memberSubscription.memberStream.getPCastStreamId();
-        });
+        memberVideoSubscriptions[memberSessionId].forEach(function(memberSubscriptionToRemove) {
+            if (memberSubscriptionToRemove) {
+                videoSubscribers--;
+                memberSubscriptionToRemove.mediaStream.stop();
+                memberSubscriptionToRemove.videoElement.remove();
 
-        memberVideoSubscriptions[memberSessionId] = memberVideoSubscriptions[memberSessionId].filter(function(memberSubscription) {
-            return memberStream.getPCastStreamId() !== memberSubscription.memberStream.getPCastStreamId();
-        });
+                if (memberSubscriptionToRemove.container) {
+                    memberSubscriptionToRemove.container.remove();
+                }
 
-        if (memberSubscriptionToRemove) {
-            videoSubscribers--;
-            memberSubscriptionToRemove.mediaStream.stop();
-            memberSubscriptionToRemove.videoElement.remove();
-
-            if (memberSubscriptionToRemove.container) {
-                memberSubscriptionToRemove.container.remove();
+                return true;
             }
 
-            return true;
-        }
-
-        return false;
+            return false;
+        });
     }
 
     function addNewMembers(members) {
@@ -336,8 +332,23 @@ var init = function() {
             console.log('Member stream subscription failed [%s]', response.status); // May want to display something indicating failure for member
         }
 
+        if (response.status === 'client-side-failure') {
+            // You may have the option to automatically retry
+            if (roomExpress.getPCastExpress().getPCast().getStatus() === 'online' && response.retry) {
+                console.log('Attempting to redo member stream subscription after failure'); // May want to display something indicating failure for member
+
+                response.retry();
+
+                return;
+            }
+
+            reconnect();
+
+            return;
+        }
+
         // You may have the option to automatically retry
-        if (response.retry) {
+        if (roomExpress.getPCastExpress().getPCast().getStatus() === 'online' && response.retry) {
             console.log('Attempting to redo member stream subscription after failure'); // May want to display something indicating failure for member
 
             response.retry();
@@ -402,15 +413,15 @@ var init = function() {
                 videoList.prepend(container);
             }
 
+            if (removed) {
+                console.log('Replaced member subscription for session ID [' + sessionId + ']');
+            }
+
             setTimeout(function() {
                 if (videoElement.muted) {
                     unMuteAudio(videoElement);
                 }
             }, 10);
-
-            if (removed) {
-                console.log('Replaced member subscription for session ID [' + sessionId + ']');
-            }
         };
 
         subscribeOptions.streamToken = audioOnlyToken;
@@ -543,6 +554,36 @@ var init = function() {
 
         subscribeOptions.streamToken = videoOnlyToken;
         roomExpress.subscribeToMemberStream(newVideoMemeber.memberStream, subscribeOptions, handleSubscribe);
+    }
+
+    function reconnect() {
+        if (roomExpress.getPCastExpress().getPCast().getStatus() !== 'online') {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+
+            timeoutId = setTimeout(function() {
+                reconnect();
+            }, 100);
+
+            return;
+        }
+
+        if (publisher) {
+            publisher.publisher.stop();
+            publisher.videoElement.remove();
+
+            publisher = null;
+        }
+
+        if (roomService) {
+            roomService.leaveRoom(function() {
+                roomService = null;
+                setTimeout(() => {
+                    publishVideoAndCameraAtTwoQualitiesAndJoinRoom();
+                });
+            });
+        }
     }
 
     function leaveRoomAndStopPublisher() {
