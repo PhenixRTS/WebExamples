@@ -58,17 +58,7 @@ if (queryParameters['screenName']) {
 
 var init = function() {
     function createRoomExpress() {
-        var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
-
-        adminApiProxyClient.setRequestHandler(function handleRequestCallback(requestType, data, callback) {
-            // The SDK made a request for a token b/c using of edge token failed.
-            // The default behavior is to return 'unauthorized' which results in the stream being offline.
-            // This should trigger the customer's custom authentication workflow.
-            return callback(null, {status: 'unauthorized'});
-        });
-
         roomExpress = new sdk.express.RoomExpress({
-            adminApiProxyClient: adminApiProxyClient,
             authToken: audioOnlyToken,
             uri: 'https://pcast.phenixrts.com'
         });
@@ -154,10 +144,8 @@ var init = function() {
                 reconnect();
             }
 
-            if (response.status !== 'ok' && response.status !== 'ended') {
+            if (response.status !== 'ok' && response.status !== 'ended' && response.status !== 'stream-ended') {
                 console.error('New Status: ' + response.status);
-
-                throw new Error(response.status);
             }
 
             if (response.status === 'ok') {
@@ -557,11 +545,11 @@ var init = function() {
     }
 
     function reconnect() {
-        if (roomExpress.getPCastExpress().getPCast().getStatus() !== 'online') {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
 
+        if (roomExpress.getPCastExpress().getPCast().getStatus() !== 'online') {
             timeoutId = setTimeout(function() {
                 reconnect();
             }, 100);
@@ -595,16 +583,8 @@ var init = function() {
         }
 
         if (roomService) {
-            roomService.leaveRoom(function(error, response) {
+            roomService.leaveRoom(function() {
                 roomService = null;
-
-                if (error) {
-                    throw error;
-                }
-
-                if (response.status !== 'ok') {
-                    throw new Error(response.status);
-                }
             });
         }
     }
