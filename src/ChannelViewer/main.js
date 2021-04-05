@@ -83,13 +83,7 @@ try {
             channelExpressOptions.authToken = edgeAuthToken;
             joinChannelOptions.streamToken = edgeAuthToken;
 
-            channelExpressOptions.adminApiProxyClient = new sdk.net.AdminApiProxyClient();
-            channelExpressOptions.adminApiProxyClient.setRequestHandler(function handleRequestCallback(requestType, data, callback) {
-                // The SDK made a request for a token b/c using of edge token failed.
-                // The default behavior is to return 'unauthorized' which results in the stream being offline.
-                // This should trigger the customer's custom authentication workflow.
-                return callback(null, {status: 'unauthorized'});
-            });
+            delete channelExpressOptions.adminApiProxyClient;
         }
 
         if (params[i] === 'shaka') {

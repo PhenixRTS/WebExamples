@@ -104,7 +104,7 @@ var init = function() {
                     audio: {deviceId: audioSources[0].id},
                     video: {deviceId: videoSources[0].id}
                 }, // Use the same deviceIds for both
-                streamToken: publishOnlyToken,
+                publishToken: publishOnlyToken,
                 screenName: screenName,
                 streamType: 'User',
                 memberRole: memberRole
@@ -549,14 +549,6 @@ var init = function() {
             clearTimeout(timeoutId);
         }
 
-        if (roomExpress.getPCastExpress().getPCast().getStatus() !== 'online') {
-            timeoutId = setTimeout(function() {
-                reconnect();
-            }, 100);
-
-            return;
-        }
-
         if (publisher) {
             publisher.publisher.stop();
             publisher.videoElement.remove();
@@ -567,10 +559,15 @@ var init = function() {
         if (roomService) {
             roomService.leaveRoom(function() {
                 roomService = null;
-                setTimeout(() => {
-                    publishVideoAndCameraAtTwoQualitiesAndJoinRoom();
-                });
             });
+        }
+
+        if (roomExpress.getPCastExpress().getPCast() && roomExpress.getPCastExpress().getPCast().getStatus() === 'online') {
+            publishVideoAndCameraAtTwoQualitiesAndJoinRoom();
+        } else {
+            timeoutId = setTimeout(function() {
+                reconnect();
+            }, 200);
         }
     }
 
