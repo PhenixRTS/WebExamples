@@ -57,6 +57,10 @@ video {
     z-index: 9;
 }
 
+.self-container video {
+    position: absolute;
+}
+
 .members-container {
     color: #fff;
     background: #696969;
