@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Channel</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body class="main">
+<h1>Phenix Channel Viewer iFrame Example</h1>
+<iframe src="https://phenixrts.com/examples/ChannelViewer2/index.html" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen webkitallowfullscreen>
+    <p>Your browser does not support iframes.</p>
+</iframe>
+<script>
+    window.addEventListener("message", receiveMessage, false);
+
+    function receiveMessage(event) {
+        console.log({timeStamp: event.timeStamp, data: event.data});
+    }
+</script>
+</body>
+</html>

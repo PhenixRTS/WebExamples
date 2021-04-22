@@ -1,0 +1,10 @@
+.main {
+    text-align: center;
+}
+
+iframe {
+    width: 62vw;
+    height: 62vh;
+    object-fit: cover;
+    background-color: rgba(0,0,0,0.5);
+}
