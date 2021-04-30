@@ -15,6 +15,7 @@
  */
 
 var sdk = window['phenix-web-sdk'];
+var isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 var roomId = 'europe-central#demo#multipartyChatDemoRoom.ZpqbJ4mNkh6u';
 var videoOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IndIRzFjWDJMK3NST2dtMktyT004S3NJU0IyeVp6eHQ2d3I5dVcrNFlGM3FZUTRSeEliUVFRR0Z2enhWNDVzSDhQZkkxam9qc3FnekNkNUdkamNnY0VRPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI5NjA5NjUwOTQxLFwiY2FwYWJpbGl0aWVzXCI6W1widmlkZW8tb25seVwiXSxcInJlcXVpcmVkVGFnXCI6XCJyb29tSWQ6ZXVyb3BlLWNlbnRyYWwjZGVtbyNtdWx0aXBhcnR5Q2hhdERlbW9Sb29tLlpwcWJKNG1Oa2g2dVwifSJ9';
 var audioOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IjZ3ODQ3S3N2ZFh5WjhRNnlyNWNzMnh0YjMxdFQ0TFR3bHAyeUZyZ0t2K0pDUEJyYkI4Qnd5a3dyT2NIWE52OXQ5eU5qYkFNT2tuQ1N1VnE5eGdBZjdRPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI5NjA5NjcwMjI1LFwiY2FwYWJpbGl0aWVzXCI6W1wiYXVkaW8tb25seVwiXSxcInJlcXVpcmVkVGFnXCI6XCJyb29tSWQ6ZXVyb3BlLWNlbnRyYWwjZGVtbyNtdWx0aXBhcnR5Q2hhdERlbW9Sb29tLlpwcWJKNG1Oa2g2dVwifSJ9';
@@ -64,6 +65,7 @@ if (queryParameters['screenName']) {
 var init = function() {
     function createRoomExpress() {
         roomExpress = new sdk.express.RoomExpress({
+            treatBackgroundAsOffline: isMobileAppleDevice,
             authToken: audioOnlyToken,
             uri: 'https://pcast.phenixrts.com'
         });
@@ -566,7 +568,7 @@ var init = function() {
     function createVideo() {
         var videoElement = document.createElement('video');
 
-        videoElement.setAttribute('playsline', ''); // For Safari and IOS
+        videoElement.setAttribute('playsinline', ''); // For Safari and IOS
         videoElement.setAttribute('autoplay', ''); // For Safari and IOS + Mobile
 
         // To resolve unintended pauses
