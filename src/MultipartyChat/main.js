@@ -85,6 +85,7 @@ var init = function() {
     function publishVideoAndCameraAtTwoQualitiesAndJoinRoom() {
         muteAudio = false;
         muteVideo = false;
+
         var name = document.getElementById('screenName').value;
 
         if (!name) {
@@ -132,13 +133,12 @@ var init = function() {
         videoElement.muted = true;
 
         return roomExpressPublishToRoomAndHandleErrors(options, function(response) {
-            publisher = {
-                ...publisher,
-                audioPublisher: response.publisher,
-                audioElement: videoElement
-            };
+            publisher = publisher || {};
+            publisher['audioPublisher'] = response.publisher;
+            publisher['audioElement'] = videoElement;
 
             selfVideoList.append(videoElement);
+
             if (!publisher.videoPublisher) {
                 callback();
             }
@@ -179,11 +179,9 @@ var init = function() {
         videoElement.muted = true;
 
         return roomExpressPublishToRoomAndHandleErrors(options, function(response) {
-            publisher = {
-                ...publisher,
-                videoPublisher: response.publisher,
-                videoElement: videoElement
-            };
+            publisher = publisher || {};
+            publisher['videoPublisher'] = response.publisher;
+            publisher['videoElement'] = videoElement;
 
             selfVideoList.append(videoElement);
         });
@@ -289,6 +287,7 @@ var init = function() {
                 }
             }
         });
+
         if (memberSubscriptions[memberSessionId].length > 0) {
             memberSubscriptions[memberSessionId].length = 0;
         }
@@ -300,6 +299,7 @@ var init = function() {
         if (!memberVideoSubscriptions[memberSessionId].length) {
             return false;
         }
+
         memberVideoSubscriptions[memberSessionId].forEach(function(memberSubscriptionToRemove) {
             if (memberSubscriptionToRemove) {
                 videoSubscribers--;
@@ -332,6 +332,7 @@ var init = function() {
 
             memberSubscriptions[memberSessionId] = [];
             memberVideoSubscriptions[memberSessionId] = [];
+
             // Listen for changes to member streams. This will happen when the publisher fails and it recovers, or when adding or removing a screen share
             var memberStreamSubscription = newMember.getObservableStreams().subscribe(function(memberStreams) {
                 if (!memberSubscriptions[memberSessionId] && !memberVideoSubscriptions[memberSessionId]) {
@@ -376,19 +377,17 @@ var init = function() {
 
                 if (audioOnlyStream) {
                     subscribeToMemberStream(audioOnlyStream, memberSessionId, memberScreenName, function() {
-                        console.log('commented2',  memberSubscriptions[memberSessionId], memberVideoSubscriptions[memberSessionId], videoOnlyStream && videoSubscribers <= maxVideoSubscribers)
+                        console.log('commented2', memberSubscriptions[memberSessionId], memberVideoSubscriptions[memberSessionId], videoOnlyStream && videoSubscribers <= maxVideoSubscribers);
 
                         if (videoOnlyStream && videoSubscribers <= maxVideoSubscribers) {
-                            videoSubscribers++
-                            subscribeVideoOnly.call(this, videoOnlyStream, memberSessionId, memberScreenName)
+                            videoSubscribers++;
+                            subscribeVideoOnly.call(this, videoOnlyStream, memberSessionId, memberScreenName);
                         }
                     });
                 }
             });
 
             var streams = newMember.getObservableStreams().getValue();
-            var memberScreenName = newMember.getObservableScreenName().getValue();
-
             var videoOnlyStream, audioOnlyStream;
 
             streams.forEach(function(memberStream) {
@@ -404,12 +403,11 @@ var init = function() {
             if (audioOnlyStream) {
                 subscribeToMemberStream(audioOnlyStream, memberSessionId, memberScreenName, function() {
                     if (videoOnlyStream && videoSubscribers <= maxVideoSubscribers) {
-                        videoSubscribers++
-                        subscribeVideoOnly(videoOnlyStream, memberSessionId, memberScreenName)
+                        videoSubscribers++;
+                        subscribeVideoOnly(videoOnlyStream, memberSessionId, memberScreenName);
                     }
                 });
             }
-
         });
 
         membersStore = members;
@@ -452,6 +450,7 @@ var init = function() {
         var container = document.createElement('div');
 
         container.classList = 'client-container ' + sessionId;
+
         var nameContainer = document.createElement('div');
         var name = document.createElement('div');
         var action = document.createElement('div');
@@ -482,6 +481,7 @@ var init = function() {
             if (!response || !response.mediaStream) {
                 return;
             }
+
             // Make sure we don't end up with 2 streams due to auto recovery
             var removed = removeMemberStream(memberStream, sessionId);
             memberSubscriptions[sessionId].push({
@@ -506,8 +506,9 @@ var init = function() {
                 if (videoElement.muted) {
                     unMuteAudio(videoElement);
                 }
-                console.log('subscribeToMemberStream')
-                callback()
+
+                console.log('subscribeToMemberStream');
+                callback();
             }, 10);
         };
 
@@ -518,6 +519,7 @@ var init = function() {
     function subscribeVideoOnly(memberStream, sessionId, memberScreenName) {
         var videoElement = createVideo();
         var isSelf = sessionId === roomService.getSelf().getSessionId(); // Check if is yourself!
+
         if (isSelf) {
             return; // Ignore self
         }
@@ -531,7 +533,7 @@ var init = function() {
                 return;
             }
 
-            const container = memberSubscriptions[sessionId][memberSubscriptions[sessionId].length -1].container;
+            const container = memberSubscriptions[sessionId][memberSubscriptions[sessionId].length - 1].container;
 
             // RemoveVideoMemberStream
             // Make sure we don't end up with 2 streams due to auto recovery
@@ -590,8 +592,8 @@ var init = function() {
             if(memeber.getSessionId() === sessionId) {
                 var memberScreenName = memeber.getObservableScreenName().getValue();
                 memeber.getObservableStreams().getValue().forEach(function(memberStream) {
-
                     var isVideoOnly = memberStream.getInfo().capabilities.includes('video-only');
+
                     if (isVideoOnly) {
                         var realMemberVideoSubscriptions = [];
                         var keys = Object.keys(memberVideoSubscriptions);
@@ -616,11 +618,11 @@ var init = function() {
                         memberVideoSubscriptions[randomSessionId] = [];
 
                         videoSubscribers++;
-                        subscribeVideoOnly(memberStream, sessionId, memberScreenName)
+                        subscribeVideoOnly(memberStream, sessionId, memberScreenName);
                     }
                 });
             }
-        })
+        });
     }
 
     function reconnect() {
@@ -682,7 +684,6 @@ var init = function() {
     function onMuteAudioClick() {
         muteAudio = !muteAudio;
 
-
         if (publisher && publisher.audioPublisher) {
             if (muteAudio) {
                 muteAudioButton.textContent = 'Unmute Audio';
@@ -697,19 +698,20 @@ var init = function() {
     function onMuteVideoClick() {
         muteVideo = !muteVideo;
 
-
         if (publisher && publisher.audioPublisher) {
             if (muteVideo) {
                 muteVideoButton.textContent = 'Unmute Video';
+
                 if(publisher.videoPublisher && publisher.videoPublisher.isActive()) {
                     publisher.videoPublisher.stop();
                     publisher.videoElement.remove();
                 }
+
                 delete publisher.videoPublisher;
-                delete publisher.videoElement
+                delete publisher.videoElement;
             } else {
                 muteVideoButton.textContent = 'Mute Video';
-                publishVideo()
+                publishVideo();
             }
         }
     }
