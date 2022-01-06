@@ -66,8 +66,9 @@ var init = function() {
     function createRoomExpress() {
         roomExpress = new sdk.express.RoomExpress({
             treatBackgroundAsOffline: isMobileAppleDevice,
-            authToken: audioOnlyToken,
-            uri: 'https://pcast.phenixrts.com'
+            authToken: audioOnlyToken
+            // The `uri` option can be used to set the environment when it is not set in the edge auth token. It also can be used to override the default one.
+            // uri: 'https://pcast.phenixrts.com'
         });
     }
 
@@ -130,6 +131,7 @@ var init = function() {
         });
 
         videoElement.setAttribute('muted', true); // Don't want to hear yourself
+        videoElement.setAttribute('class', 'self-audio');
         videoElement.muted = true;
 
         return roomExpressPublishToRoomAndHandleErrors(options, function(response) {
@@ -176,6 +178,8 @@ var init = function() {
         });
 
         videoElement.setAttribute('muted', true); // Don't want to hear yourself
+        videoElement.setAttribute('class', 'self-video');
+
         videoElement.muted = true;
 
         return roomExpressPublishToRoomAndHandleErrors(options, function(response) {
@@ -377,8 +381,6 @@ var init = function() {
 
                 if (audioOnlyStream) {
                     subscribeToMemberStream(audioOnlyStream, memberSessionId, memberScreenName, function() {
-                        console.log('commented2', memberSubscriptions[memberSessionId], memberVideoSubscriptions[memberSessionId], videoOnlyStream && videoSubscribers <= maxVideoSubscribers);
-
                         if (videoOnlyStream && videoSubscribers <= maxVideoSubscribers) {
                             videoSubscribers++;
                             subscribeVideoOnly.call(this, videoOnlyStream, memberSessionId, memberScreenName);
