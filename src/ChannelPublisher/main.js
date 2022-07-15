@@ -20,47 +20,16 @@ var publishButton = document.getElementById('publishButton');
 var stopButton = document.getElementById('stopButton');
 var publisher = null;
 
-// Alias to be used to publish/create/join channel
-var channelAlias = 'MyChannelAlias';
-
-// Name that will be seen by all that join
-var channelName = 'Channel Name';
-
-// Authenticate against our demo backend. Not for production use.
-// See our admin api for more info how to setup your own backend
-// https://phenixrts.com/docs/#admin-api
-var backendUri = 'https://demo-integration.phenixrts.com/pcast';
-
-// Include all of the features you would like the stream to have
-// Real-time is always included. For more info see https://phenixrts.com/docs/#supported-stream-capabilities
-// E.g. 'streaming': Live streaming (8+ seconds of latency).
-var publishCapabilities = [
-    'hd', // Quality
-    'multi-bitrate' // ABR for the clients.
-];
-
 // Local media to publish (camera and microphone)
 var mediaConstraints = {
     video: true, // Include camera
     audio: true // Include microphone
 };
 
-var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
-
-adminApiProxyClient.setBackendUri(backendUri);
-adminApiProxyClient.setAuthenticationData({
-    userId: 'my-user-id-that-is-NOT-related-to-application-id',
-    password: 'my-password-that-is-NOT-related-to-secret'
-});
-
-var channelExpressOptions = {adminApiProxyClient: adminApiProxyClient};
+var channelExpressOptions = {};
 
 var publishOptions = {
-    capabilities: publishCapabilities,
-    room: {
-        alias: channelAlias,
-        name: channelName
-    },
+    room: {},
     mediaConstraints: mediaConstraints,
     videoElement: videoElement
 };
@@ -70,24 +39,16 @@ try {
     var params = window.location.search.substring(1).split('&');
 
     for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('channelAlias=') === 0) {
-            publishOptions.room.alias = params[i].substring('channelAlias='.length);
+        if (params[i].indexOf('authToken=') === 0) {
+            var authToken = params[i].substring('authToken='.length);
+
+            channelExpressOptions.authToken = authToken;
         }
 
-        if (params[i].indexOf('backendUri=') === 0) {
-            adminApiProxyClient.setBackendUri(params[i].substring('backendUri='.length));
-        }
+        if (params[i].indexOf('publishToken=') === 0) {
+            var publishToken = params[i].substring('publishToken='.length);
 
-        if (params[i].indexOf('capabilities=') === 0) {
-            publishOptions.capabilities = params[i].substring('capabilities='.length).split(',');
-        }
-
-        if (params[i] === 'streaming') {
-            publishOptions.capabilities.push('streaming');
-        }
-
-        if (params[i] === 'disableWildcardTokenGeneration') {
-            publishOptions.enableWildcardCapability = false;
+            publishOptions.publishToken = publishToken;
         }
     }
 } catch (e) {

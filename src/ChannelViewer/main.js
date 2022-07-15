@@ -21,33 +21,13 @@ var isOtherMobile = /Android|webOS|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|
 // Video element to view channel with
 var videoElement = document.getElementById('myVideoId');
 
-// Alias to be used to publish/create/join channel
-var channelAlias = 'MyChannelAlias';
-
-// Authenticate against our demo backend. Not for production use.
-// See our admin api for more info how to setup your own backend
-// https://phenixrts.com/docs/#admin-api
-var backendUri = 'https://demo-integration.phenixrts.com/pcast';
-
 // Features to use with channel
 // If WebRTC is not supported then fall back to live streaming (~10 second latency) with DASH/HLS
 var features = ['real-time', 'dash', 'hls'];
 
-var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
-
-adminApiProxyClient.setBackendUri(backendUri);
-adminApiProxyClient.setAuthenticationData({
-    userId: 'my-user-id-that-is-NOT-related-to-application-id',
-    password: 'my-password-that-is-NOT-related-to-secret'
-});
-
-var channelExpressOptions = {
-    features: features,
-    adminApiProxyClient: adminApiProxyClient
-};
+var channelExpressOptions = {features: features};
 
 var joinChannelOptions = {
-    alias: channelAlias,
     videoElement: videoElement,
     // Select the most recent publisher in the channel
     streamSelectionStrategy: 'most-recent'
@@ -60,14 +40,6 @@ try {
     var params = window.location.search.substring(1).split('&');
 
     for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('channelAlias=') === 0) {
-            joinChannelOptions.alias = params[i].substring('channelAlias='.length);
-        }
-
-        if (params[i].indexOf('backendUri=') === 0) {
-            adminApiProxyClient.setBackendUri(params[i].substring('backendUri='.length));
-        }
-
         if (params[i].indexOf('features=') === 0) {
             channelExpressOptions.features = params[i].substring('features='.length).split(',');
         }
@@ -76,14 +48,11 @@ try {
             channelExpressOptions.treatBackgroundAsOffline = true;
         }
 
-        if (params[i].indexOf('edgeAuthToken=') === 0) {
-            // Use EdgeAuth token instead  for auth and stream
-            var edgeAuthToken = params[i].substring('edgeAuthToken='.length);
+        if (params[i].indexOf('token=') === 0) {
+            var token = params[i].substring('token='.length);
 
-            channelExpressOptions.authToken = edgeAuthToken;
-            joinChannelOptions.streamToken = edgeAuthToken;
-
-            delete channelExpressOptions.adminApiProxyClient;
+            channelExpressOptions.authToken = token;
+            joinChannelOptions.streamToken = token;
         }
 
         if (params[i] === 'shaka') {

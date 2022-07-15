@@ -16,21 +16,20 @@
 
 /* eslint camelcase: ["error", {properties: "never"}] */
 
-//
-// Alias to be used to publish/create/join channel
-var channelAlias = 'phenixWebsiteDemo';
+// URL parameters
+var token = '';
 
-// Alternatively, use the following channel alias
-// var channelAlias = 'MyChannelAlias';
-// Then publish from the following URL once or twice:
-// https://phenixrts.com/examples/ChannelPublisher/index.html
-// Use 1 concurrent publisher to verify proper start/stop of stream in different lifecycle states
-// Use 2 concurrent publishers to verify failover from one stream to another upon stream stop/failure
+try {
+    var params = window.location.search.substring(1).split('&');
 
-// Authenticate against our demo backend. Not for production use.
-// See our admin api for more info how to setup your own backend
-// https://phenixrts.com/docs/#admin-api
-var backendUri = 'https://phenixrts.com/demo';
+    for (var i = 0; i < params.length; i++) {
+        if (params[i].indexOf('token=') === 0) {
+            token = params[i].substring('token='.length);
+        }
+    }
+} catch (e) {
+    console.error(e);
+}
 
 // Video element to view channel with
 var videoElement = document.getElementById('myVideoId');
@@ -336,14 +335,10 @@ document.getElementById('loadTestCrazyCyclesButton').addEventListener('click', f
 var sdk = window['phenix-web-sdk'];
 var isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
-var adminApiProxyClient = new sdk.net.AdminApiProxyClient();
-
-adminApiProxyClient.setBackendUri(backendUri);
-
 // Instantiate the instance of the channel express
 var channel = new sdk.express.ChannelExpress({
-    treatBackgroundAsOffline: isMobileAppleDevice,
-    adminApiProxyClient: adminApiProxyClient
+    authToken: token,
+    treatBackgroundAsOffline: isMobileAppleDevice
 });
 
 var shouldBeJoined = false;
@@ -405,7 +400,7 @@ function joinChannel() {
 
     stopChannel('stop-before-join', function() {
         channel.joinChannel({
-            alias: channelAlias,
+            streamToken: token,
             streamSelectionStrategy: 'high-availability'
         }, function joinChannelCallback(error, response) {
             if (error) {
