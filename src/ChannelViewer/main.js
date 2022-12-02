@@ -21,11 +21,7 @@ var isOtherMobile = /Android|webOS|BlackBerry|IEMobile|Opera Mini|Mobile|mobile|
 // Video element to view channel with
 var videoElement = document.getElementById('myVideoId');
 
-// Features to use with channel
-// If WebRTC is not supported then fall back to live streaming (~10 second latency) with DASH/HLS
-var features = ['real-time', 'dash', 'hls'];
-
-var channelExpressOptions = {features: features};
+var channelExpressOptions = {};
 
 var joinChannelOptions = {
     videoElement: videoElement,
@@ -40,10 +36,6 @@ try {
     var params = window.location.search.substring(1).split('&');
 
     for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('features=') === 0) {
-            channelExpressOptions.features = params[i].substring('features='.length).split(',');
-        }
-
         if (params[i] === 'treatBackgroundAsOffline') {
             channelExpressOptions.treatBackgroundAsOffline = true;
         }
