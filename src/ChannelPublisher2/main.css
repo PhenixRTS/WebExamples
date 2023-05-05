@@ -7,8 +7,34 @@ video {
     height: 62%;
     object-fit: cover;
     background-color: black;
+    border: 6px #CCCCCC solid;
 }
+
+.publisher-offline {
+    border-color: #FF0000;
+}
+
+.publisher-online {
+    border-color: #008000;
+}
+
+.publisher-starting {
+    border-color: #008000;
+
+    animation: blink 1s;
+    animation-iteration-count: infinite;
+}
+
+.publisher-recovering {
+    border-color: #FFFF00;
+
+    animation: blink 1s;
+    animation-iteration-count: infinite;
+}
+
 
 .hide {
     display: none;
 }
+
+@keyframes blink { 50% { border-color:#CCCCCC ; }  }

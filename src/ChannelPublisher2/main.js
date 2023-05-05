@@ -24,30 +24,54 @@ var publisher;
 var publisherStateObservable;
 var mediaStream;
 
-// Publish local media to room
+navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: true
+}).then(mediaStream_ => {
+    mediaStream = mediaStream_;
+    videoElement.srcObject = mediaStream;
+});
+
 function publish() {
     hideElement(publishButton);
     displayElement(stopButton);
     displayElement(statusBar);
 
-    navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-    }).then(mediaStream_ => {
-        mediaStream = mediaStream_;
-        publisher = phenix.Publishers.createPublisher({
-            mediaStream,
-            name: screenName,
-            token
-        });
+    publisher = phenix.Publishers.createPublisher({
+        mediaStream,
+        name: screenName,
+        token
+    });
 
-        publisherStateObservable = publisher.state.subscribe(function(state) {
-            setStatusMessage(phenix.PublisherState[state]);
+    publisherStateObservable = publisher.state.subscribe(function(state) {
+        setStatusMessage(phenix.PublisherState[state]);
 
-            if (state === phenix.PublisherState.Publishing) {
-                videoElement.srcObject = mediaStream;
-            }
-        });
+        switch (state) {
+        case phenix.PublisherState.Publishing:
+            videoElement.className = 'publisher-online';
+
+            break;
+        case phenix.PublisherState.Starting:
+            videoElement.className = 'publisher-starting';
+
+            break;
+        case phenix.PublisherState.Recovering:
+        case phenix.PublisherState.Reconnecting:
+            videoElement.className = 'publisher-recovering';
+
+            break;
+        case phenix.PublisherState.Unauthorized:
+        case phenix.PublisherState.GeoRestricted:
+        case phenix.PublisherState.GeoBlocked:
+        case phenix.PublisherState.UnsupportedFeature:
+        case phenix.PublisherState.NotFound:
+        case phenix.PublisherState.Error:
+            videoElement.className = 'publisher-offline';
+
+            break;
+        default:
+            videoElement.className = '';
+        }
     });
 }
 
@@ -55,12 +79,9 @@ function publish() {
 function stopPublisher() {
     if (publisher) {
         publisher.stop().then(() => {
-            videoElement.srcObject = null;
             publisher = null;
             publisherStateObservable.dispose();
             publisherStateObservable = null;
-            mediaStream.getTracks()
-                .forEach(track => track.stop());
         });
     }
 
