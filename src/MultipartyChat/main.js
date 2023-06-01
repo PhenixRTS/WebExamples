@@ -112,12 +112,8 @@ var init = function() {
         var videoElement = createVideo();
         var publishOptions = {
             enableWildcardCapability: false,
-            room: {
-                roomId: roomId,
-                type: 'MultiPartyChat'
-            },
             mediaConstraints: {audio: {deviceId: audioSources[0].id}}, // Use the same deviceIds for both
-            publishToken: publishAudioOnlyToken,
+            token: publishAudioOnlyToken,
             screenName: screenName,
             streamType: 'User',
             memberRole: memberRole
@@ -159,12 +155,8 @@ var init = function() {
         var videoElement = createVideo();
         var publishOptions = {
             enableWildcardCapability: false,
-            room: {
-                roomId: roomId,
-                type: 'MultiPartyChat'
-            },
             mediaConstraints: {video: {deviceId: videoSources[0].id}}, // Use the same deviceIds for both
-            publishToken: publishVideoOnlyToken,
+            token: publishVideoOnlyToken,
             screenName: screenName,
             streamType: 'User',
             memberRole: memberRole
@@ -218,10 +210,9 @@ var init = function() {
     function joinRoom(callback) {
         maxVideoSubscribers = document.getElementById('numberOfVideos').value;
         roomExpress.joinRoom({
-            roomId: 'europe-central#demo#multipartyChatDemoRoom.ZpqbJ4mNkh6u',
+            token: audioOnlyToken,
             role: 'Participant', // Set your role for yourself. Participant will view and interact with other members (must have streams)
             screenName: screenName
-
         }, function joinRoomCallback(error, response) {
             if (error) {
                 console.error('Unable to join room: ' + error.message);
@@ -514,7 +505,7 @@ var init = function() {
             }, 10);
         };
 
-        subscribeOptions.streamToken = audioOnlyToken;
+        subscribeOptions.token = audioOnlyToken;
         roomExpress.subscribeToMemberStream(memberStream, subscribeOptions, handleSubscribe);
     }
 
@@ -560,7 +551,7 @@ var init = function() {
             }
         };
 
-        subscribeOptions.streamToken = videoOnlyToken;
+        subscribeOptions.token = videoOnlyToken;
         roomExpress.subscribeToMemberStream(memberStream, subscribeOptions, handleSubscribe);
     }
 

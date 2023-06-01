@@ -44,7 +44,7 @@ try {
             var token = params[i].substring('token='.length);
 
             channelExpressOptions.authToken = token;
-            joinChannelOptions.streamToken = token;
+            joinChannelOptions.token = token;
         }
 
         if (params[i] === 'shaka') {

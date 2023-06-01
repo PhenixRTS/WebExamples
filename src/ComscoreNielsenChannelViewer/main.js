@@ -400,7 +400,7 @@ function joinChannel() {
 
     stopChannel('stop-before-join', function() {
         channel.joinChannel({
-            streamToken: token,
+            token: token,
             streamSelectionStrategy: 'high-availability'
         }, function joinChannelCallback(error, response) {
             if (error) {

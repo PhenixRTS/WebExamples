@@ -29,7 +29,6 @@ var mediaConstraints = {
 var channelExpressOptions = {};
 
 var publishOptions = {
-    room: {},
     mediaConstraints: mediaConstraints,
     videoElement: videoElement
 };
@@ -48,7 +47,7 @@ try {
         if (params[i].indexOf('publishToken=') === 0) {
             var publishToken = params[i].substring('publishToken='.length);
 
-            publishOptions.publishToken = publishToken;
+            publishOptions.token = publishToken;
         }
     }
 } catch (e) {
