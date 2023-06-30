@@ -17,6 +17,8 @@ var phenix = window['phenix'];
 var videoElement = document.getElementById('myVideoId');
 var publishButton = document.getElementById('publishButton');
 var stopButton = document.getElementById('stopButton');
+var getUserMediaButton = document.getElementById('getUserMediaButton');
+var stopUserMediaButton = document.getElementById('stopUserMediaButton');
 var statusBar = document.getElementById('statusBar');
 var token = new URLSearchParams(location.search).get('token');
 var screenName = new URLSearchParams(location.search).get('screenName') || (Math.random() + 1).toString(36).substring(2);
@@ -34,6 +36,7 @@ navigator.mediaDevices.getUserMedia({
 
 function publish() {
     hideElement(publishButton);
+    hideElement(stopUserMediaButton);
     displayElement(stopButton);
     displayElement(statusBar);
 
@@ -87,6 +90,31 @@ function stopPublisher() {
 
     hideElement(stopButton);
     displayElement(publishButton);
+    displayElement(stopUserMediaButton);
+}
+
+function stopUserMedia() {
+    mediaStream.getTracks()
+        .forEach(track => track.stop());
+    mediaStream = null;
+    videoElement.srcObject = null;
+
+    hideElement(publishButton);
+    hideElement(stopUserMediaButton);
+    displayElement(getUserMediaButton);
+}
+
+function getUserMedia() {
+    navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+    }).then(mediaStream_ => {
+        mediaStream = mediaStream_;
+        videoElement.srcObject = mediaStream;
+
+        hideElement(getUserMediaButton);
+        displayElement(publishButton);
+    });
 }
 
 function setStatusMessage(message) {
@@ -107,3 +135,5 @@ function hideElement(element) {
 
 publishButton.onclick = publish;
 stopButton.onclick = stopPublisher;
+getUserMediaButton.onclick = getUserMedia;
+stopUserMediaButton.onclick = stopUserMedia;
