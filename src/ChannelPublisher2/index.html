@@ -9,15 +9,25 @@
         var __phenixPageLoadTime = new Date().getTime();
     </script>
 </head>
-<body class="main">
+<body id="main">
     <h1>Phenix Channel Publish Example</h1>
+    <div id="mediaDeviceContainer" class="container">
+        <label for="audioDeviceSelect">Audio Source:</label>
+        <select id="audioDeviceSelect"></select>
+        <label for="videoDeviceSelect">Video Source:</label>
+        <select id="videoDeviceSelect"></select>
+    </div>
+
     <video id="myVideoId" width="1280" height="720" playsinline autoplay muted></video>
     <br/>
-    <button id="publishButton" class="publisher">Publish</button>
-    <button id="stopButton" class="stop-publisher hide">Stop</button>
-    <button id="getUserMediaButton" class="stop-publisher hide">Get User Media</button>
-    <button id="stopUserMediaButton" class="stop-publisher hide">Stop User Media</button>
-    <p id="statusBar" class="hide">Status: <b id="statusMessage"></b></p>
+    <div id="controlButtonContainer">
+        <button id="publishButton">Publish</button>
+        <button id="stopButton">Stop</button>
+        <button id="getUserMediaButton">Get User Media</button>
+        <button id="stopUserMediaButton">Stop User Media</button>
+    </div>
+
+    <p id="statusBar">Status: <b id="statusMessage"></b></p>
     <script src="main.js"></script>
 </body>
 </html>

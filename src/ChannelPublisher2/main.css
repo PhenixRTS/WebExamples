@@ -1,5 +1,10 @@
-.main {
+#main {
     text-align: center;
+}
+
+.container {
+    text-align: center;
+    margin: 20px;
 }
 
 video {
@@ -10,31 +15,113 @@ video {
     border: 6px #CCCCCC solid;
 }
 
-.publisher-offline {
+.publisher-unauthorized video,
+.publisher-geo-restricted video,
+.publisher-geo-blocked video,
+.publisher-unsupported-feature video,
+.publisher-not-found video,
+.publisher-error video {
     border-color: #FF0000;
 }
 
-.publisher-online {
+.publisher-publishing video {
     border-color: #008000;
 }
 
-.publisher-starting {
+.publisher-starting video {
     border-color: #008000;
 
     animation: blink 1s;
     animation-iteration-count: infinite;
 }
 
-.publisher-recovering {
-    border-color: #FFFF00;
-
-    animation: blink 1s;
-    animation-iteration-count: infinite;
-}
-
-
-.hide {
+#stopButton,
+#getUserMediaButton {
     display: none;
+}
+
+.stopped-user-media #getUserMediaButton {
+    display: inline-block;
+}
+
+.stopped-user-media #stopUserMediaButton {
+    display: none;
+}
+
+.stopped-user-media #publishButton,
+.stopped-user-media #stopUserMediaButton,
+.publisher-unauthorized #publishButton,
+.publisher-unauthorized #stopUserMediaButton,
+.publisher-unauthorized #getUserMediaButton,
+.publisher-geo-restricted #publishButton,
+.publisher-geo-restricted #stopUserMediaButton,
+.publisher-geo-restricted #getUserMediaButton,
+.publisher-geo-blocked #publishButton,
+.publisher-geo-blocked #stopUserMediaButton,
+.publisher-geo-blocked #getUserMediaButton,
+.publisher-unsupported-feature #publishButton,
+.publisher-unsupported-feature #stopUserMediaButton,
+.publisher-unsupported-feature #getUserMediaButton,
+.publisher-not-found #publishButton,
+.publisher-not-found #stopUserMediaButton,
+.publisher-not-found #getUserMediaButton,
+.publisher-error #publishButton,
+.publisher-error #stopUserMediaButton,
+.publisher-error #getUserMediaButton,
+.publisher-publishing #publishButton,
+.publisher-publishing #stopUserMediaButton,
+.publisher-publishing #getUserMediaButton,
+.publisher-starting #publishButton,
+.publisher-starting #stopUserMediaButton,
+.publisher-starting #getUserMediaButton,
+.publisher-recovering #publishButton,
+.publisher-recovering #stopUserMediaButton,
+.publisher-recovering #getUserMediaButton,
+.publisher-reconnecting #publishButton,
+.publisher-reconnecting #stopUserMediaButton,
+.publisher-reconnecting #getUserMediaButton {
+    display: none;
+}
+
+.publisher-unauthorized #stopButton,
+.publisher-geo-restricted #stopButton,
+.publisher-geo-blocked #stopButton,
+.publisher-unsupported-feature #stopButton,
+.publisher-not-found #stopButton,
+.publisher-error #stopButton,
+.publisher-publishing #stopButton,
+.publisher-starting #stopButton,
+.publisher-recovering #stopButton,
+.publisher-reconnecting #stopButton {
+    display: inline-block;
+}
+
+.stopped-user-media #audioDeviceSelect,
+.stopped-user-media #videoDeviceSelect,
+.publisher-unauthorized #audioDeviceSelect,
+.publisher-geo-restricted #audioDeviceSelect,
+.publisher-geo-blocked #audioDeviceSelect,
+.publisher-unsupported-feature #audioDeviceSelect,
+.publisher-not-found #audioDeviceSelect,
+.publisher-error #audioDeviceSelect,
+.publisher-publishing #audioDeviceSelect,
+.publisher-starting #audioDeviceSelect,
+.publisher-reconnecting #audioDeviceSelect,
+.publisher-recovering #audioDeviceSelect,
+.publisher-unauthorized #videoDeviceSelect,
+.publisher-geo-restricted #videoDeviceSelect,
+.publisher-geo-blocked #videoDeviceSelect,
+.publisher-unsupported-feature #videoDeviceSelect,
+.publisher-not-found #videoDeviceSelect,
+.publisher-error #videoDeviceSelect,
+.publisher-publishing #videoDeviceSelect,
+.publisher-starting #videoDeviceSelect,
+.publisher-reconnecting #videoDeviceSelect,
+.publisher-recovering #videoDeviceSelect{
+    -webkit-user-select: none; /* Safari */
+    user-select: none; /* Standard syntax */
+    pointer-events: none;
+    opacity: .5;
 }
 
 @keyframes blink { 50% { border-color:#CCCCCC ; }  }
