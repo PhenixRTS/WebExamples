@@ -14,70 +14,43 @@
  * limitations under the License.
  */
 
-var sdk = window['phenix-web-sdk'];
-var videoElement = document.getElementById('myVideoId');
-var publishButton = document.getElementById('publishButton');
-var stopButton = document.getElementById('stopButton');
-var publisher = null;
-var authToken = '';
-var publishToken = '';
-
+const sdk = window['phenix-web-sdk'];
+const videoElement = document.getElementById('myVideoId');
+const publishButton = document.getElementById('publishButton');
+const stopButton = document.getElementById('stopButton');
+let publisher = null;
+const urlSearchParams = new URLSearchParams(location.search);
+const authToken = urlSearchParams.get('authToken') || '';
+const publishToken = urlSearchParams.get('publishToken') || '';
 // Local media to publish (camera and microphone)
-var mediaConstraints = {
+const mediaConstraints = {
     video: {
         resizeMode: "crop-and-scale",
-        width: 480,
-        height: 720
+        width: Number(urlSearchParams.get('width')) || 480,
+        height: Number(urlSearchParams.get('height')) || 720
     },
     audio: true
 };
-
-// Support customizations
-try {
-    var params = window.location.search.substring(1).split('&');
-
-    for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('authToken=') === 0) {
-            authToken = params[i].substring('authToken='.length);
-        }
-
-        if (params[i].indexOf('publishToken=') === 0) {
-            publishToken = params[i].substring('publishToken='.length);
-        }
-
-        if (params[i].indexOf('width=') === 0) {
-            mediaConstraints.video.width = parseInt(params[i].substring('width='.length), 10);
-        }
-
-        if (params[i].indexOf('height=') === 0) {
-            mediaConstraints.video.height = parseInt(params[i].substring('height='.length), 10);
-        }
-    }
-} catch (e) {
-    console.error(e);
-}
-
 // Instantiate the instance of the channel express
-var channel = new sdk.express.ChannelExpress({authToken: authToken});
+const channel = new sdk.express.ChannelExpress({authToken: authToken});
 
 // Capture local media
 function capture() {
     navigator.mediaDevices.getUserMedia(mediaConstraints)
-        .then(function(stream) {
+        .then(stream => {
             setUserMessage('Got user media');
 
             publish(stream);
         })
-        .catch(function(err) {
-            setUserMessage('Failed to get media stream: ' + err.message);
+        .catch(e => {
+            setUserMessage(`Failed to get media stream: ${e.message}`);
         });
 }
 
 // Publish local media to room
 function publish(userMediaStream) {
-    var publishOptions = {
-        publishToken: publishToken,
-        room: {},
+    const publishOptions = {
+        token: publishToken,
         userMediaStream: userMediaStream,
         videoElement: videoElement
     };
@@ -85,15 +58,15 @@ function publish(userMediaStream) {
     hideElement(publishButton);
     displayElement(stopButton);
 
-    channel.publishToChannel(publishOptions, function subscriberCallback(error, response) {
+    channel.publishToChannel(publishOptions, (error, response) => {
         if (error) {
-            setUserMessage('publishToChannel()::subscriberCallback(error, response) returned error=' + error.message);
+            setUserMessage(`publishToChannel()::subscriberCallback(error, response) returned error=${error.message}`);
             stopPublisher();
 
             throw error;
         }
 
-        setUserMessage('publishToChannel()::subscriberCallback(error, response) returned response.status=' + response.status);
+        setUserMessage(`publishToChannel()::subscriberCallback(error, response) returned response.status=${response.status}`);
 
         if (response.status !== 'ok' && response.status !== 'ended' && response.status !== 'stream-ended') {
             stopPublisher();
@@ -120,7 +93,7 @@ function stopPublisher() {
 }
 
 function setUserMessage(message) {
-    var userMessageElement = document.getElementById('userMessage');
+    const userMessageElement = document.getElementById('userMessage');
 
     userMessageElement.innerText = message;
 }
@@ -130,7 +103,7 @@ function displayElement(element) {
 }
 
 function hideElement(element) {
-    if (element.className.indexOf('hide') === -1) {
+    if (!element.className.includes('hide')) {
         element.className += ' hide';
     }
 }

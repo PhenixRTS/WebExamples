@@ -17,26 +17,12 @@
 /* eslint camelcase: ["error", {properties: "never"}] */
 
 // URL parameters
-var token = '';
-
-try {
-    var params = window.location.search.substring(1).split('&');
-
-    for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('token=') === 0) {
-            token = params[i].substring('token='.length);
-        }
-    }
-} catch (e) {
-    console.error(e);
-}
-
+const token = new URLSearchParams(location.search).get('token');
 // Video element to view channel with
-var videoElement = document.getElementById('myVideoId');
-
+const videoElement = document.getElementById('myVideoId');
 // Video controls
-var playButton = document.getElementById('playButton');
-var unmuteButton = document.getElementById('unmuteButton');
+const playButton = document.getElementById('playButton');
+const unmuteButton = document.getElementById('unmuteButton');
 
 // Start with everything hidden
 videoElement.style.display = 'none';
@@ -47,15 +33,15 @@ unmuteButton.style.display = 'none';
 //
 // Nielsen: Begin setup
 /* global NOLBUNDLE */
-var staticTrackerId = 'STATIC-ID';
-var videoTrackerId = 'VIDEO-ID';
-var nielsenMetadata = {
+const staticTrackerId = 'STATIC-ID';
+const videoTrackerId = 'VIDEO-ID';
+const nielsenMetadata = {
     type: 'static',
     assetid: 'phenixgame',
     section: 'phenixrts',
     segB: 'phenixgame'
 };
-var contentMetadataObject = {
+const contentMetadataObject = {
     type: 'content',
     assetid: 'phenixgame',
     program: 'phenixrts',
@@ -68,9 +54,8 @@ var contentMetadataObject = {
     crossId1: 'SH01234560000',
     adloadtype: '2'
 };
-
 // Static
-var nSdkInstanceStatic = NOLBUNDLE.nlsQ(staticTrackerId, 'nlsnInstanceStatic', {
+const nSdkInstanceStatic = NOLBUNDLE.nlsQ(staticTrackerId, 'nlsnInstanceStatic', {
     nol_sdkDebug: 'debug',
     outout: 'false'
 });
@@ -79,18 +64,18 @@ var nSdkInstanceStatic = NOLBUNDLE.nlsQ(staticTrackerId, 'nlsnInstanceStatic', {
 nSdkInstanceStatic.ggPM('staticstart', nielsenMetadata);
 
 // Video
-var nSdkInstanceVideo = NOLBUNDLE.nlsQ(videoTrackerId, 'nlsnInstanceVideo', {
+const nSdkInstanceVideo = NOLBUNDLE.nlsQ(videoTrackerId, 'nlsnInstanceVideo', {
     nol_sdkDebug: 'debug',
     outout: 'false'
 });
-var oneSecond = 1000;
-var reportPlayheadPositionIntervalId;
+const oneSecond = 1000;
+let reportPlayheadPositionIntervalId;
 
 function currentUnixTimestamp() {
     return Math.floor(Date.now() / 1000);
 }
 
-window.addEventListener('beforeunload', function() {
+window.addEventListener('beforeunload', () => {
     // Indicate <end> and <stop> for the content
     nSdkInstanceVideo.ggPM('end', currentUnixTimestamp());
     nSdkInstanceVideo.ggPM('stop', currentUnixTimestamp());
@@ -116,7 +101,7 @@ function startReportingPlayheadPosition() {
         reportPlayheadPositionIntervalId = null;
     }
 
-    reportPlayheadPositionIntervalId = setInterval(function() {
+    reportPlayheadPositionIntervalId = setInterval(() => {
         nSdkInstanceVideo.ggPM('setPlayheadPosition', currentUnixTimestamp());
     }, oneSecond);
     nSdkInstanceVideo.ggPM('setPlayheadPosition', currentUnixTimestamp());
@@ -149,13 +134,13 @@ videoElement.addEventListener('abort', nielsenVideoAbort, true);
 //
 // Comscore: Begin setup
 /* global ns_ */
-var publisherId = '123456789';
-var customerC2 = '010101010';
+const publisherId = '123456789';
+const customerC2 = '010101010';
 ns_.comScore.setAppContext();
 ns_.comScore.setCustomerC2(customerC2);
 
-var streamingAnalytics = new ns_.ReducedRequirementsStreamingAnalytics({publisherId: publisherId});
-var metadata = {
+const streamingAnalytics = new ns_.ReducedRequirementsStreamingAnalytics({publisherId: publisherId});
+const metadata = {
     ns_st_ci: 'PHENIX',
     ns_st_cl: 0,
     ns_st_pu: 'ABC', // Publisher Brand Name
@@ -210,7 +195,7 @@ videoElement.addEventListener('abort', videoAbort, true);
 // * The video stream is provisioned ahead of the time that the <video> is shown so that everything is ready beforehand.
 //
 // Start of Lifecycle Management
-var provisioned = false;
+let provisioned = false;
 
 function provisionVideo() {
     if (provisioned) {
@@ -265,7 +250,7 @@ function applyLifecycle() {
     } else {
         if (subscriber) {
             if (!shouldBeJoined) {
-                stopChannel('should-be-stopped', function() {
+                stopChannel('should-be-stopped', () => {
                     recordVideoLifecycleEvent('video provisioned and then stopped');
                 });
 
@@ -280,12 +265,12 @@ function applyLifecycle() {
 // Dispatch click events to setTimeout so it emulates behavior when triggered without a user action
 document.getElementById('provisionVideoButton').addEventListener('click', setTimeout.bind(null, provisionVideo, 1));
 document.getElementById('startVideoButton').addEventListener('click', setTimeout.bind(null, startVideo, 1));
-document.getElementById('stopVideoButton').addEventListener('click', setTimeout.bind(null, stopVideo.bind(null, function() {}), 1));
+document.getElementById('stopVideoButton').addEventListener('click', setTimeout.bind(null, stopVideo.bind(null, () => {}), 1));
 // End of Lifecycle Management
 
 // Testing
 
-var remainingLoadTestSteps = 0;
+let remainingLoadTestSteps = 0;
 
 function loadTestNextStep(provisionDelay, startDelay, stopDelay) {
     if (remainingLoadTestSteps <= 0) {
@@ -294,14 +279,14 @@ function loadTestNextStep(provisionDelay, startDelay, stopDelay) {
 
     remainingLoadTestSteps--;
 
-    setTimeout(function() {
+    setTimeout(() => {
         provisionVideo();
 
-        setTimeout(function() {
+        setTimeout(() => {
             startVideo();
 
-            setTimeout(function() {
-                stopVideo(function() {
+            setTimeout(() => {
+                stopVideo(() => {
                     loadTestNextStep(provisionDelay, startDelay, stopDelay);
                 });
             }, stopDelay);
@@ -309,19 +294,19 @@ function loadTestNextStep(provisionDelay, startDelay, stopDelay) {
     }, provisionDelay);
 }
 
-document.getElementById('loadTestNormalCyclesButton').addEventListener('click', function() {
+document.getElementById('loadTestNormalCyclesButton').addEventListener('click', () => {
     remainingLoadTestSteps = 20;
 
     loadTestNextStep(600000, 30000, 240000);
 });
 
-document.getElementById('loadTestFastCyclesButton').addEventListener('click', function() {
+document.getElementById('loadTestFastCyclesButton').addEventListener('click', () => {
     remainingLoadTestSteps = 50;
 
     loadTestNextStep(3000, 3000, 3000);
 });
 
-document.getElementById('loadTestCrazyCyclesButton').addEventListener('click', function() {
+document.getElementById('loadTestCrazyCyclesButton').addEventListener('click', () => {
     remainingLoadTestSteps = 100;
 
     loadTestNextStep(10, 10, 50);
@@ -332,22 +317,20 @@ document.getElementById('loadTestCrazyCyclesButton').addEventListener('click', f
 // * It creates a ChannelExpress object upon loading of the page
 // * It can join a channel without showing the stream yet on the screen
 // * It can show the video on screen upon request
-var sdk = window['phenix-web-sdk'];
-var isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
+const sdk = window['phenix-web-sdk'];
+const isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 // Instantiate the instance of the channel express
-var channel = new sdk.express.ChannelExpress({
+const channel = new sdk.express.ChannelExpress({
     authToken: token,
     treatBackgroundAsOffline: isMobileAppleDevice
 });
-
-var shouldBeJoined = false;
-var channelService = null;
-var subscriber = null;
-var subscriberDisposables = [];
+let shouldBeJoined = false;
+let channelService = null;
+let subscriber = null;
+const subscriberDisposables = [];
 
 function disposeSubscriberDisposables() {
-    for (var i = 0; i < subscriberDisposables.length; i++) {
+    for (let i = 0; i < subscriberDisposables.length; i++) {
         subscriberDisposables[i].dispose();
     }
 
@@ -382,9 +365,9 @@ function stopChannel(reason, callback) {
     }
 
     if (channelService) {
-        var myChannelService = channelService;
+        const myChannelService = channelService;
 
-        myChannelService.leaveChannel(function() {
+        myChannelService.leaveChannel(() => {
             myChannelService.stop(reason || 'stopped');
             callback && callback();
         });
@@ -398,25 +381,25 @@ function stopChannel(reason, callback) {
 function joinChannel() {
     shouldBeJoined = true;
 
-    stopChannel('stop-before-join', function() {
+    stopChannel('stop-before-join', () => {
         channel.joinChannel({
-            token: token,
+            token,
             streamSelectionStrategy: 'high-availability'
-        }, function joinChannelCallback(error, response) {
+        }, (error, response) => {
             if (error) {
                 console.error('Unable to join channel', error);
 
-                setUserMessage('joinChannel()::joinChannelCallback(error, response) returned error=' + error.message);
+                setUserMessage(`joinChannel()::joinChannelCallback(error, response) returned error=${error.message}`);
 
                 // Handle error
                 return;
             }
 
-            setUserMessage('joinChannel()::joinChannelCallback(error, response) returned response.status=' + response.status);
+            setUserMessage(`joinChannel()::joinChannelCallback(error, response) returned response.status=${response.status}`);
 
             if (response.status !== 'ok') {
                 // Handle error
-                console.warn('Unable to join room, status: ' + response.status);
+                console.warn(`Unable to join room, status: ${response.status}`);
 
                 return;
             }
@@ -428,7 +411,7 @@ function joinChannel() {
             }
 
             channelService = response.channelService;
-        }, function subscriberCallback(error, response) {
+        }, (error, response) => {
             disposeSubscriberDisposables();
 
             if (subscriber) {
@@ -438,14 +421,14 @@ function joinChannel() {
             if (error) {
                 console.error('Unable to subscribe to channel', error);
 
-                setUserMessage('joinChannel()::subscriberCallback(error, response) returned error=' + error.message);
+                setUserMessage(`joinChannel()::subscriberCallback(error, response) returned error=${error.message}`);
 
                 allowUserToRetryManuallyAfterError();
 
                 return;
             }
 
-            setUserMessage('joinChannel()::subscriberCallback(error, response) returned response.status=' + response.status);
+            setUserMessage(`joinChannel()::subscriberCallback(error, response) returned response.status=${response.status}`);
 
             if (response.status === 'no-stream-playing') {
                 // Waiting for a stream to start
@@ -456,11 +439,11 @@ function joinChannel() {
                 return;
             }
 
-            setUserMessage('joinChannel()::subscriberCallback(error, response) returned response.mediaStream.getStreamId()=' + response.mediaStream.getStreamId());
+            setUserMessage(`joinChannel()::subscriberCallback(error, response) returned response.mediaStream.getStreamId()=${response.mediaStream.getStreamId()}`);
 
             subscriber = response.mediaStream;
 
-            setStatusMessage('Stream ID: "' + subscriber.getStreamId() + '"');
+            setStatusMessage(`Stream ID: "${subscriber.getStreamId()}"`);
 
             applyLifecycle();
         });
@@ -468,9 +451,9 @@ function joinChannel() {
 }
 
 function renderVideoInElement(videoElement, subscriber) {
-    var renderer = subscriber.createRenderer();
+    const renderer = subscriber.createRenderer();
 
-    subscriberDisposables.push(renderer.on('autoMuted', function handleAutoMuted() {
+    subscriberDisposables.push(renderer.on('autoMuted', () => {
         if (!shouldBeJoined) {
             return;
         }
@@ -484,7 +467,7 @@ function renderVideoInElement(videoElement, subscriber) {
         unmuteButton.style.display = '';
     }));
 
-    subscriberDisposables.push(renderer.on('failedToPlay', function handleFailedToPlay(reason) {
+    subscriberDisposables.push(renderer.on('failedToPlay', reason => {
         if (!shouldBeJoined) {
             return;
         }
@@ -492,7 +475,7 @@ function renderVideoInElement(videoElement, subscriber) {
         // The browser refused to play video even with audio muted.
         // Handle this case properly in your UI so that the user can start their stream.
 
-        setStatusMessage('Video failed to play: "' + reason + '"');
+        setStatusMessage(`Video failed to play: "${reason}"`);
 
         if (isMobileAppleDevice && reason === 'failed-to-play') {
             // IOS battery saver mode requires user interaction with the <video> to play video
@@ -512,8 +495,8 @@ function renderVideoInElement(videoElement, subscriber) {
         }
     }));
 
-    subscriberDisposables.push(renderer.on('ended', function handleEnded(reason) {
-        setStatusMessage('Video ended: "' + reason + '"');
+    subscriberDisposables.push(renderer.on('ended', reason => {
+        setStatusMessage(`Video ended: "${reason}"`);
 
         // The video will automatically recover for known situations.
         // Show the control to the user for exceptional situations (e.g. no network connection).
@@ -526,16 +509,16 @@ function renderVideoInElement(videoElement, subscriber) {
     renderer.start(videoElement);
 }
 
-unmuteButton.addEventListener('click', function() {
+unmuteButton.addEventListener('click', () => {
     videoElement.muted = false;
     unmuteButton.style.display = 'none';
     setStatusMessage('');
 });
 
 // Debugging messages for development
-var userMessageElement = document.getElementById('userMessage');
-var statusMessageElement = document.getElementById('statusMessage');
-var videoLifecycleElement = document.getElementById('videoLifecycle');
+const userMessageElement = document.getElementById('userMessage');
+const statusMessageElement = document.getElementById('statusMessage');
+const videoLifecycleElement = document.getElementById('videoLifecycle');
 
 function setUserMessage(message) {
     userMessageElement.innerText = message;

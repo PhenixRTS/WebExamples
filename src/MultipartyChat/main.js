@@ -14,55 +14,39 @@
  * limitations under the License.
  */
 
-var sdk = window['phenix-web-sdk'];
-var isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-var roomId = 'europe-central#demo#multipartyChatDemoRoom.ZpqbJ4mNkh6u';
-var videoOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IndIRzFjWDJMK3NST2dtMktyT004S3NJU0IyeVp6eHQ2d3I5dVcrNFlGM3FZUTRSeEliUVFRR0Z2enhWNDVzSDhQZkkxam9qc3FnekNkNUdkamNnY0VRPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI5NjA5NjUwOTQxLFwiY2FwYWJpbGl0aWVzXCI6W1widmlkZW8tb25seVwiXSxcInJlcXVpcmVkVGFnXCI6XCJyb29tSWQ6ZXVyb3BlLWNlbnRyYWwjZGVtbyNtdWx0aXBhcnR5Q2hhdERlbW9Sb29tLlpwcWJKNG1Oa2g2dVwifSJ9';
-var audioOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IjZ3ODQ3S3N2ZFh5WjhRNnlyNWNzMnh0YjMxdFQ0TFR3bHAyeUZyZ0t2K0pDUEJyYkI4Qnd5a3dyT2NIWE52OXQ5eU5qYkFNT2tuQ1N1VnE5eGdBZjdRPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI5NjA5NjcwMjI1LFwiY2FwYWJpbGl0aWVzXCI6W1wiYXVkaW8tb25seVwiXSxcInJlcXVpcmVkVGFnXCI6XCJyb29tSWQ6ZXVyb3BlLWNlbnRyYWwjZGVtbyNtdWx0aXBhcnR5Q2hhdERlbW9Sb29tLlpwcWJKNG1Oa2g2dVwifSJ9';
-var publishAudioOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6InUzMXFXbWVmUG14ZWt1ZDhSRERBMXFKOUVNV29IMEJZc3l4OSs1b2hPOUJhOTZmUDl5d3RRMTVjMm95bUk3NURXUG04d29sTnFpNDVaM3dpOGFnRy9BPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTMzMjM1OTE5Mjk0LFwidHlwZVwiOlwicHVibGlzaFwiLFwiY2FwYWJpbGl0aWVzXCI6W1wiYXVkaW8tb25seVwiLFwibGRcIl0sXCJyZXF1aXJlZFRhZ1wiOlwicm9vbUlkOmV1cm9wZS1jZW50cmFsI2RlbW8jbXVsdGlwYXJ0eUNoYXREZW1vUm9vbS5acHFiSjRtTmtoNnVcIn0ifQ==';
-var publishVideoOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6Ii9WTlBXb0hhOEFENjVrdzl6dzBwK2JmQSswRUZzZE1zbi9JdTcvMmJFcW0zYUYrMUxkQUY0Mm1aM252VnNOQWczckZwOTBFUTRJdnNKT2hrMThUVmRnPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTMzMjM1ODg1NDQxLFwidHlwZVwiOlwicHVibGlzaFwiLFwiY2FwYWJpbGl0aWVzXCI6W1widmlkZW8tb25seVwiLFwibGRcIl0sXCJyZXF1aXJlZFRhZ1wiOlwicm9vbUlkOmV1cm9wZS1jZW50cmFsI2RlbW8jbXVsdGlwYXJ0eUNoYXREZW1vUm9vbS5acHFiSjRtTmtoNnVcIn0ifQ==';
-var publishAndJoinRoomButton = document.getElementById('publishAndJoinRoomButton');
-var stopButton = document.getElementById('stopButton');
-var muteAudioButton = document.getElementById('muteAudio');
-var muteVideoButton = document.getElementById('muteVideo');
-var muteAudio = false;
-var muteVideo = false;
-var screenName = 'ScreenName' + Math.floor(Math.random() * 10000) + 1; // Helpful if unique but we don't enforce this. You might set this to be an email or a nickname, or both. Then parse it when joining the room.
-var roomExpress = null;
-var roomService = null;
-var publisher = null;
-var selfVideoList = document.getElementsByClassName('self-container')[0];
-var videoList = document.getElementsByClassName('members-container')[0];
-var videoSources = null;
-var audioSources = null;
-var memberRole = 'Participant';
-var membersStore = [];
-var memberSubscriptions = {};
-var memberVideoSubscriptions = {};
-var videoSubscribers = 1;
-var timeoutId = null;
-var maxVideoSubscribers = 8;
-var queryParameters = {};
+const sdk = window['phenix-web-sdk'];
+const isMobileAppleDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const videoOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IndIRzFjWDJMK3NST2dtMktyT004S3NJU0IyeVp6eHQ2d3I5dVcrNFlGM3FZUTRSeEliUVFRR0Z2enhWNDVzSDhQZkkxam9qc3FnekNkNUdkamNnY0VRPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI5NjA5NjUwOTQxLFwiY2FwYWJpbGl0aWVzXCI6W1widmlkZW8tb25seVwiXSxcInJlcXVpcmVkVGFnXCI6XCJyb29tSWQ6ZXVyb3BlLWNlbnRyYWwjZGVtbyNtdWx0aXBhcnR5Q2hhdERlbW9Sb29tLlpwcWJKNG1Oa2g2dVwifSJ9';
+const audioOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6IjZ3ODQ3S3N2ZFh5WjhRNnlyNWNzMnh0YjMxdFQ0TFR3bHAyeUZyZ0t2K0pDUEJyYkI4Qnd5a3dyT2NIWE52OXQ5eU5qYkFNT2tuQ1N1VnE5eGdBZjdRPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTI5NjA5NjcwMjI1LFwiY2FwYWJpbGl0aWVzXCI6W1wiYXVkaW8tb25seVwiXSxcInJlcXVpcmVkVGFnXCI6XCJyb29tSWQ6ZXVyb3BlLWNlbnRyYWwjZGVtbyNtdWx0aXBhcnR5Q2hhdERlbW9Sb29tLlpwcWJKNG1Oa2g2dVwifSJ9';
+const publishAudioOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6InUzMXFXbWVmUG14ZWt1ZDhSRERBMXFKOUVNV29IMEJZc3l4OSs1b2hPOUJhOTZmUDl5d3RRMTVjMm95bUk3NURXUG04d29sTnFpNDVaM3dpOGFnRy9BPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTMzMjM1OTE5Mjk0LFwidHlwZVwiOlwicHVibGlzaFwiLFwiY2FwYWJpbGl0aWVzXCI6W1wiYXVkaW8tb25seVwiLFwibGRcIl0sXCJyZXF1aXJlZFRhZ1wiOlwicm9vbUlkOmV1cm9wZS1jZW50cmFsI2RlbW8jbXVsdGlwYXJ0eUNoYXREZW1vUm9vbS5acHFiSjRtTmtoNnVcIn0ifQ==';
+const publishVideoOnlyToken = 'DIGEST:eyJhcHBsaWNhdGlvbklkIjoiZGVtbyIsImRpZ2VzdCI6Ii9WTlBXb0hhOEFENjVrdzl6dzBwK2JmQSswRUZzZE1zbi9JdTcvMmJFcW0zYUYrMUxkQUY0Mm1aM252VnNOQWczckZwOTBFUTRJdnNKT2hrMThUVmRnPT0iLCJ0b2tlbiI6IntcImV4cGlyZXNcIjoxOTMzMjM1ODg1NDQxLFwidHlwZVwiOlwicHVibGlzaFwiLFwiY2FwYWJpbGl0aWVzXCI6W1widmlkZW8tb25seVwiLFwibGRcIl0sXCJyZXF1aXJlZFRhZ1wiOlwicm9vbUlkOmV1cm9wZS1jZW50cmFsI2RlbW8jbXVsdGlwYXJ0eUNoYXREZW1vUm9vbS5acHFiSjRtTmtoNnVcIn0ifQ==';
+const publishAndJoinRoomButton = document.getElementById('publishAndJoinRoomButton');
+const stopButton = document.getElementById('stopButton');
+const muteAudioButton = document.getElementById('muteAudio');
+const muteVideoButton = document.getElementById('muteVideo');
+let muteAudio = false;
+let muteVideo = false;
+let screenName = `ScreenName${Math.floor(Math.random() * 10000) + 1}`; // Helpful if unique but we don`t enforce this. You might set this to be an email or a nickname, or both. Then parse it when joining the room.
+let roomExpress = null;
+let roomService = null;
+let publisher = null;
+const selfVideoList = document.getElementsByClassName('self-container')[0];
+const videoList = document.getElementsByClassName('members-container')[0];
+let videoSources = null;
+let audioSources = null;
+let memberRole = 'Participant';
+let membersStore = [];
+const memberSubscriptions = {};
+const memberVideoSubscriptions = {};
+let videoSubscribers = 1;
+let timeoutId = null;
+let maxVideoSubscribers = 8;
+const urlSearchParams = new URLSearchParams(location.search);
 
-if (window.location && window.location.search) {
-    var params = window.location.search.substring(1).split('&');
-    for (var i = 0; i < params.length; i++) {
-        if (params[i].includes('=')) {
-            var splitedParameters = params[i].split('=');
-            queryParameters[splitedParameters[0]] = splitedParameters[1];
-        }
-    }
-}
+document.getElementById('numberOfVideos').value = urlSearchParams.get('maxVideoSubscribers') || 8;
+document.getElementById('screenName').value = urlSearchParams.get('screenName');
 
-if (queryParameters['maxVideoSubscribers']) {
-    document.getElementById('numberOfVideos').value = queryParameters['maxVideoSubscribers'];
-}
-
-if (queryParameters['screenName']) {
-    document.getElementById('screenName').value = queryParameters['screenName'];
-}
-
-var init = function() {
+const init = () => {
     function createRoomExpress() {
         roomExpress = new sdk.express.RoomExpress({
             treatBackgroundAsOffline: isMobileAppleDevice,
@@ -74,28 +58,24 @@ var init = function() {
 
     createRoomExpress();
 
-    sdk.utils.rtc.getSources(function(sources) {
-        videoSources = sources.filter(function(source) {
-            return source.kind === 'video';
-        });
-        audioSources = sources.filter(function(source) {
-            return source.kind === 'audio';
-        });
+    sdk.utils.rtc.getSources(sources => {
+        videoSources = sources.filter(source => source.kind === 'video');
+        audioSources = sources.filter(source => source.kind === 'audio');
     });
 
     function publishVideoAndCameraAtTwoQualitiesAndJoinRoom() {
         muteAudio = false;
         muteVideo = false;
 
-        var name = document.getElementById('screenName').value;
+        let name = document.getElementById('screenName').value;
 
         if (!name) {
-            name = 'screenName' + '-' + Math.floor(Math.random() * 10000) + 1;
+            name = `screenName-${Math.floor(Math.random() * 10000) + 1}`;
         }
 
-        screenName = name + '.' + Math.floor(Math.random() * 10000) + 1;
+        screenName = `${name}.${Math.floor(Math.random() * 10000) + 1}`;
 
-        joinRoom(function() {
+        joinRoom(() => {
             publishAudio(() => publishVideo());
         });
     }
@@ -109,17 +89,15 @@ var init = function() {
             createRoomExpress();
         }
 
-        var videoElement = createVideo();
-        var publishOptions = {
-            enableWildcardCapability: false,
+        const videoElement = createVideo();
+        const publishOptions = {
             mediaConstraints: {audio: {deviceId: audioSources[0].id}}, // Use the same deviceIds for both
             token: publishAudioOnlyToken,
             screenName: screenName,
             streamType: 'User',
             memberRole: memberRole
         };
-
-        var options = Object.assign({}, publishOptions, {
+        let options = Object.assign({}, publishOptions, {
             videoElement: videoElement, // Bind local user media to this element (no delay)
             resolution: 180,
             frameRate: 15,
@@ -130,7 +108,7 @@ var init = function() {
         videoElement.setAttribute('class', 'self-audio');
         videoElement.muted = true;
 
-        return roomExpressPublishToRoomAndHandleErrors(options, function(response) {
+        return roomExpressPublishToRoomAndHandleErrors(options, response => {
             publisher = publisher || {};
             publisher['audioPublisher'] = response.publisher;
             publisher['audioElement'] = videoElement;
@@ -152,17 +130,15 @@ var init = function() {
             createRoomExpress();
         }
 
-        var videoElement = createVideo();
-        var publishOptions = {
-            enableWildcardCapability: false,
+        const videoElement = createVideo();
+        const publishOptions = {
             mediaConstraints: {video: {deviceId: videoSources[0].id}}, // Use the same deviceIds for both
             token: publishVideoOnlyToken,
             screenName: screenName,
             streamType: 'User',
             memberRole: memberRole
         };
-
-        var options = Object.assign({}, publishOptions, {
+        let options = Object.assign({}, publishOptions, {
             videoElement: videoElement, // Bind local user media to this element (no delay)
             resolution: 180,
             frameRate: 15,
@@ -174,7 +150,7 @@ var init = function() {
 
         videoElement.muted = true;
 
-        return roomExpressPublishToRoomAndHandleErrors(options, function(response) {
+        return roomExpressPublishToRoomAndHandleErrors(options, response => {
             publisher = publisher || {};
             publisher['videoPublisher'] = response.publisher;
             publisher['videoElement'] = videoElement;
@@ -184,9 +160,9 @@ var init = function() {
     }
 
     function roomExpressPublishToRoomAndHandleErrors(options, callback) {
-        return roomExpress.publishToRoom(options, function(error, response) {
+        return roomExpress.publishToRoom(options, (error, response) => {
             if (error) {
-                console.log('Unable to publish to Room: ' + error);
+                console.log(`Unable to publish to Room: ${error}`);
 
                 return;
             }
@@ -196,7 +172,7 @@ var init = function() {
             }
 
             if (response.status !== 'ok' && response.status !== 'ended' && response.status !== 'stream-ended') {
-                console.error('New Status: ' + response.status);
+                console.error(`New Status: ${response.status}`);
             }
 
             if (response.status === 'ok') {
@@ -212,25 +188,25 @@ var init = function() {
         roomExpress.joinRoom({
             token: audioOnlyToken,
             role: 'Participant', // Set your role for yourself. Participant will view and interact with other members (must have streams)
-            screenName: screenName
-        }, function joinRoomCallback(error, response) {
+            screenName
+        }, (error, response) => {
             if (error) {
-                console.error('Unable to join room: ' + error.message);
+                console.error(`Unable to join room: ${error.message}`);
                 leaveRoomAndStopPublisher();
 
                 throw error;
             }
 
             if (response.status !== 'ok' && response.status !== 'ended') {
-                console.error('New Status: ' + response.status);
+                console.error(`New Status: ${response.status}`);
 
                 throw new Error(response.status);
             }
 
             roomService = response.roomService;
             callback();
-        }, function membersChangedCallback(members) { // This is triggered every time a member joins or leaves
-            console.log('Members updated, count=[' + members.length + ']', members);
+        }, members => { // This is triggered every time a member joins or leaves
+            console.log(`Members updated, count=[${members.length}]`, members);
 
             removeOldMembers(members);
             addNewMembers(members);
@@ -238,22 +214,20 @@ var init = function() {
     }
 
     function removeOldMembers(members) {
-        var membersThatLeft = membersStore.filter(function(member) {
-            return !members.includes(member);
-        });
+        let membersThatLeft = membersStore.filter(member => !members.includes(member));
 
-        membersThatLeft.forEach(function(memberThatLeft) {
-            var memberSubscription = memberSubscriptions[memberThatLeft.getSessionId()];
-            var memberVidoeSubscription = memberVideoSubscriptions[memberThatLeft.getSessionId()];
+        membersThatLeft.forEach(memberThatLeft => {
+            let memberSubscription = memberSubscriptions[memberThatLeft.getSessionId()];
+            let memberVidoeSubscription = memberVideoSubscriptions[memberThatLeft.getSessionId()];
 
             if (memberVidoeSubscription) {
-                memberVidoeSubscription.forEach(function(subscription) {
+                memberVidoeSubscription.forEach(subscription => {
                     removeVideoMemberStream(subscription.memberStream, memberThatLeft.getSessionId());
                 });
             }
 
             if (memberSubscription) {
-                memberSubscription.forEach(function(subscription) {
+                memberSubscription.forEach(subscription => {
                     removeMemberStream(subscription.memberStream, memberThatLeft.getSessionId());
                 });
             }
@@ -262,9 +236,7 @@ var init = function() {
             delete memberVideoSubscriptions[memberThatLeft.getSessionId()];
         });
 
-        membersStore = membersStore.filter(function(member) {
-            return !membersThatLeft.includes(member);
-        });
+        membersStore = membersStore.filter(member => !membersThatLeft.includes(member));
     }
 
     function removeMemberStream(memberStream, memberSessionId) {
@@ -272,7 +244,7 @@ var init = function() {
             return false;
         }
 
-        memberSubscriptions[memberSessionId].forEach(function(memberSubscriptionToRemove) {
+        memberSubscriptions[memberSessionId].forEach(memberSubscriptionToRemove => {
             if (memberSubscriptionToRemove) {
                 memberSubscriptionToRemove.mediaStream.stop();
                 memberSubscriptionToRemove.videoElement.remove();
@@ -295,7 +267,7 @@ var init = function() {
             return false;
         }
 
-        memberVideoSubscriptions[memberSessionId].forEach(function(memberSubscriptionToRemove) {
+        memberVideoSubscriptions[memberSessionId].forEach(memberSubscriptionToRemove => {
             if (memberSubscriptionToRemove) {
                 videoSubscribers--;
                 memberSubscriptionToRemove.mediaStream.stop();
@@ -317,38 +289,32 @@ var init = function() {
     }
 
     function addNewMembers(members) {
-        var membersThatJoined = members.filter(function(member) {
-            return !membersStore.includes(member);
-        });
+        let membersThatJoined = members.filter(member => !membersStore.includes(member));
 
-        membersThatJoined.forEach(function(newMember) {
-            var memberSessionId = newMember.getSessionId();
-            var memberScreenName = newMember.getObservableScreenName().getValue();
+        membersThatJoined.forEach(newMember => {
+            const memberSessionId = newMember.getSessionId();
+            const memberScreenName = newMember.getObservableScreenName().getValue();
 
             memberSubscriptions[memberSessionId] = [];
             memberVideoSubscriptions[memberSessionId] = [];
 
             // Listen for changes to member streams. This will happen when the publisher fails and it recovers, or when adding or removing a screen share
-            var memberStreamSubscription = newMember.getObservableStreams().subscribe(function(memberStreams) {
+            const memberStreamSubscription = newMember.getObservableStreams().subscribe(memberStreams => {
                 if (!memberSubscriptions[memberSessionId] && !memberVideoSubscriptions[memberSessionId]) {
                     return memberStreamSubscription.dispose();
                 }
 
                 // Remove old streams
-                memberSubscriptions[memberSessionId].forEach(function(memberSubscription) {
-                    var shouldRemoveMember = !memberStreams.find(function(stream) {
-                        return stream.getPCastStreamId() === memberSubscription.memberStream.getPCastStreamId();
-                    });
+                memberSubscriptions[memberSessionId].forEach(memberSubscription => {
+                    const shouldRemoveMember = !memberStreams.find(stream => stream.getPCastStreamId() === memberSubscription.memberStream.getPCastStreamId());
 
                     if (shouldRemoveMember) {
                         removeMemberStream(memberSubscription.memberStream, memberSessionId);
                     }
                 });
 
-                memberVideoSubscriptions[memberSessionId].forEach(function(memberSubscription) {
-                    var shouldRemoveMember = !memberStreams.find(function(stream) {
-                        return stream.getPCastStreamId() === memberSubscription.memberStream.getPCastStreamId();
-                    });
+                memberVideoSubscriptions[memberSessionId].forEach(memberSubscription => {
+                    const shouldRemoveMember = !memberStreams.find(stream => stream.getPCastStreamId() === memberSubscription.memberStream.getPCastStreamId());
 
                     if (shouldRemoveMember) {
                         removeVideoMemberStream(memberSubscription.memberStream, memberSessionId);
@@ -356,11 +322,10 @@ var init = function() {
                 });
 
                 // Subscribe to new streams
-                var streams = newMember.getObservableStreams().getValue();
+                const streams = newMember.getObservableStreams().getValue();
+                let videoOnlyStream, audioOnlyStream;
 
-                var videoOnlyStream, audioOnlyStream;
-
-                streams.forEach(function(memberStream) {
+                streams.forEach(memberStream => {
                     if(memberStream.getInfo().capabilities.includes('video-only')) {
                         videoOnlyStream = memberStream;
                     }
@@ -371,7 +336,7 @@ var init = function() {
                 });
 
                 if (audioOnlyStream) {
-                    subscribeToMemberStream(audioOnlyStream, memberSessionId, memberScreenName, function() {
+                    subscribeToMemberStream(audioOnlyStream, memberSessionId, memberScreenName, () => {
                         if (videoOnlyStream && videoSubscribers <= maxVideoSubscribers) {
                             videoSubscribers++;
                             subscribeVideoOnly.call(this, videoOnlyStream, memberSessionId, memberScreenName);
@@ -379,11 +344,10 @@ var init = function() {
                     });
                 }
             });
+            const streams = newMember.getObservableStreams().getValue();
+            let videoOnlyStream, audioOnlyStream;
 
-            var streams = newMember.getObservableStreams().getValue();
-            var videoOnlyStream, audioOnlyStream;
-
-            streams.forEach(function(memberStream) {
+            streams.forEach(memberStream => {
                 if(memberStream.getInfo().capabilities.includes('video-only')) {
                     videoOnlyStream = memberStream;
                 }
@@ -394,7 +358,7 @@ var init = function() {
             });
 
             if (audioOnlyStream) {
-                subscribeToMemberStream(audioOnlyStream, memberSessionId, memberScreenName, function() {
+                subscribeToMemberStream(audioOnlyStream, memberSessionId, memberScreenName, () => {
                     if (videoOnlyStream && videoSubscribers <= maxVideoSubscribers) {
                         videoSubscribers++;
                         subscribeVideoOnly(videoOnlyStream, memberSessionId, memberScreenName);
@@ -439,44 +403,43 @@ var init = function() {
     }
 
     function subscribeToMemberStream(memberStream, sessionId, memberScreenName, callback) {
-        var videoElement = createVideo();
-        var container = document.createElement('div');
+        const videoElement = createVideo();
+        const container = document.createElement('div');
 
-        container.classList = 'client-container ' + sessionId;
+        container.classList = `client-container ${sessionId}`;
 
-        var nameContainer = document.createElement('div');
-        var name = document.createElement('div');
-        var action = document.createElement('div');
-        nameContainer.classList = 'client-name-container ' + sessionId;
+        const nameContainer = document.createElement('div');
+        const name = document.createElement('div');
+        const action = document.createElement('div');
+        nameContainer.classList = `client-name-container ${sessionId}`;
         name.classList = 'name-container';
         action.classList = 'action-container';
         name.innerHTML = memberScreenName.split('.')[0];
         action.innerHTML = 'Make Video Member';
         nameContainer.append(name);
         nameContainer.append(action);
-        nameContainer.onclick = function() {
+        nameContainer.onclick = () => {
             handleAudioMemberClick(sessionId);
         };
         container.append(nameContainer);
 
-        var isSelf = sessionId === roomService.getSelf().getSessionId(); // Check if is yourself!
+        const isSelf = sessionId === roomService.getSelf().getSessionId(); // Check if is yourself!
 
         if (isSelf) {
             return; // Ignore self
         }
 
-        var subscribeOptions = {
+        const subscribeOptions = {
             videoElement: videoElement,
             monitor: {callback: onMonitorEvent}
         };
-
-        var handleSubscribe = function(error, response) {
+        const handleSubscribe = (error, response) => {
             if (!response || !response.mediaStream) {
                 return;
             }
 
             // Make sure we don't end up with 2 streams due to auto recovery
-            var removed = removeMemberStream(memberStream, sessionId);
+            const removed = removeMemberStream(memberStream, sessionId);
             memberSubscriptions[sessionId].push({
                 mediaStream: response.mediaStream,
                 videoElement: videoElement,
@@ -487,15 +450,15 @@ var init = function() {
                 memberScreenName: memberScreenName
             });
 
-            container.classList = 'client-container audio-only-member ' + sessionId;
+            container.classList = `client-container audio-only-member ${sessionId}`;
             container.append(videoElement);
             videoList.prepend(container);
 
             if (removed) {
-                console.log('Replaced member subscription for session ID [' + sessionId + ']');
+                console.log(`Replaced member subscription for session ID [${sessionId}]`);
             }
 
-            setTimeout(function() {
+            setTimeout(() => {
                 if (videoElement.muted) {
                     unMuteAudio(videoElement);
                 }
@@ -510,27 +473,26 @@ var init = function() {
     }
 
     function subscribeVideoOnly(memberStream, sessionId, memberScreenName) {
-        var videoElement = createVideo();
-        var isSelf = sessionId === roomService.getSelf().getSessionId(); // Check if is yourself!
+        const videoElement = createVideo();
+        const isSelf = sessionId === roomService.getSelf().getSessionId(); // Check if is yourself!
 
         if (isSelf) {
             return; // Ignore self
         }
 
-        var subscribeOptions = {
+        const subscribeOptions = {
             videoElement: videoElement,
             monitor: {callback: onMonitorEvent}
         };
-        var handleSubscribe = function(error, response) {
+        const handleSubscribe = (error, response) => {
             if (!response || !response.mediaStream) {
                 return;
             }
 
             const container = memberSubscriptions[sessionId][memberSubscriptions[sessionId].length - 1].container;
-
             // RemoveVideoMemberStream
             // Make sure we don't end up with 2 streams due to auto recovery
-            var removed = removeVideoMemberStream(memberStream, sessionId);
+            const removed = removeVideoMemberStream(memberStream, sessionId);
 
             memberVideoSubscriptions[sessionId].push({
                 mediaStream: response.mediaStream,
@@ -542,12 +504,12 @@ var init = function() {
                 memberScreenName: memberScreenName
             });
 
-            container.classList = 'client-container ' + sessionId;
+            container.classList = `client-container ${sessionId}`;
 
             container.append(videoElement);
 
             if (removed) {
-                console.log('Replaced member subscription for session ID [' + sessionId + ']');
+                console.log(`Replaced member subscription for session ID [${sessionId}]`);
             }
         };
 
@@ -561,14 +523,14 @@ var init = function() {
     }
 
     function createVideo() {
-        var videoElement = document.createElement('video');
+        const videoElement = document.createElement('video');
 
         videoElement.setAttribute('playsinline', ''); // For Safari and IOS
         videoElement.setAttribute('autoplay', ''); // For Safari and IOS + Mobile
 
         // To resolve unintended pauses
-        videoElement.onpause = function() {
-            setTimeout(function() {
+        videoElement.onpause = () => {
+            setTimeout(() => {
                 videoElement.play();
             }, 10);
         };
@@ -583,15 +545,15 @@ var init = function() {
 
         membersStore.forEach(memeber => {
             if(memeber.getSessionId() === sessionId) {
-                var memberScreenName = memeber.getObservableScreenName().getValue();
-                memeber.getObservableStreams().getValue().forEach(function(memberStream) {
-                    var isVideoOnly = memberStream.getInfo().capabilities.includes('video-only');
+                const memberScreenName = memeber.getObservableScreenName().getValue();
+                memeber.getObservableStreams().getValue().forEach(memberStream => {
+                    const isVideoOnly = memberStream.getInfo().capabilities.includes('video-only');
 
                     if (isVideoOnly) {
-                        var realMemberVideoSubscriptions = [];
-                        var keys = Object.keys(memberVideoSubscriptions);
+                        const realMemberVideoSubscriptions = [];
+                        const keys = Object.keys(memberVideoSubscriptions);
 
-                        keys.forEach(function(key) {
+                        keys.forEach(key => {
                             if (memberVideoSubscriptions[key].length) {
                                 realMemberVideoSubscriptions.push(key);
                             }
@@ -601,8 +563,8 @@ var init = function() {
                             return;
                         }
 
-                        var randomSessionId = realMemberVideoSubscriptions[Math.floor(Math.random() * realMemberVideoSubscriptions.length)];
-                        var memberSubscriptionToRemove = memberVideoSubscriptions[randomSessionId][0];
+                        const randomSessionId = realMemberVideoSubscriptions[Math.floor(Math.random() * realMemberVideoSubscriptions.length)];
+                        const memberSubscriptionToRemove = memberVideoSubscriptions[randomSessionId][0];
 
                         videoSubscribers--;
                         memberSubscriptionToRemove.container.classList = 'client-container audio-only-member';
@@ -636,7 +598,7 @@ var init = function() {
         }
 
         if (roomService) {
-            roomService.leaveRoom(function() {
+            roomService.leaveRoom(() => {
                 videoSubscribers = 1;
                 roomService = null;
             });
@@ -645,7 +607,7 @@ var init = function() {
         if (roomExpress.getPCastExpress().getPCast() && roomExpress.getPCastExpress().getPCast().getStatus() === 'online') {
             publishVideoAndCameraAtTwoQualitiesAndJoinRoom();
         } else {
-            timeoutId = setTimeout(function() {
+            timeoutId = setTimeout(() => {
                 reconnect();
             }, 200);
         }
@@ -667,7 +629,7 @@ var init = function() {
         }
 
         if (roomService) {
-            roomService.leaveRoom(function() {
+            roomService.leaveRoom(() => {
                 videoSubscribers = 1;
                 roomService = null;
             });

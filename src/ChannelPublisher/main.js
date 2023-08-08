@@ -14,63 +14,42 @@
  * limitations under the License.
  */
 
-var sdk = window['phenix-web-sdk'];
-var videoElement = document.getElementById('myVideoId');
-var publishButton = document.getElementById('publishButton');
-var stopButton = document.getElementById('stopButton');
-var publisher = null;
-
+const sdk = window['phenix-web-sdk'];
+const videoElement = document.getElementById('myVideoId');
+const publishButton = document.getElementById('publishButton');
+const stopButton = document.getElementById('stopButton');
+let publisher = null;
 // Local media to publish (camera and microphone)
-var mediaConstraints = {
+const mediaConstraints = {
     video: true, // Include camera
     audio: true // Include microphone
 };
-
-var channelExpressOptions = {};
-
-var publishOptions = {
-    mediaConstraints: mediaConstraints,
-    videoElement: videoElement
+const urlSearchParams = new URLSearchParams(location.search);
+const authToken = urlSearchParams.get('authToken') || '';
+const publishToken = urlSearchParams.get('publishToken') || '';
+const channelExpressOptions = {authToken};
+const publishOptions = {
+    token: publishToken,
+    mediaConstraints,
+    videoElement
 };
-
-// Support customizations
-try {
-    var params = window.location.search.substring(1).split('&');
-
-    for (var i = 0; i < params.length; i++) {
-        if (params[i].indexOf('authToken=') === 0) {
-            var authToken = params[i].substring('authToken='.length);
-
-            channelExpressOptions.authToken = authToken;
-        }
-
-        if (params[i].indexOf('publishToken=') === 0) {
-            var publishToken = params[i].substring('publishToken='.length);
-
-            publishOptions.token = publishToken;
-        }
-    }
-} catch (e) {
-    console.error(e);
-}
-
 // Instantiate the instance of the channel express
-var channel = new sdk.express.ChannelExpress(channelExpressOptions);
+const channel = new sdk.express.ChannelExpress(channelExpressOptions);
 
 // Publish local media to room
 function publish() {
     hideElement(publishButton);
     displayElement(stopButton);
 
-    channel.publishToChannel(publishOptions, function subscriberCallback(error, response) {
+    channel.publishToChannel(publishOptions, (error, response) => {
         if (error) {
-            setUserMessage('publishToChannel()::subscriberCallback(error, response) returned error=' + error.message);
+            setUserMessage(`publishToChannel()::subscriberCallback(error, response) returned error=${error.message}`);
             stopPublisher();
 
             throw error;
         }
 
-        setUserMessage('publishToChannel()::subscriberCallback(error, response) returned response.status=' + response.status);
+        setUserMessage(`publishToChannel()::subscriberCallback(error, response) returned response.status=${response.status}`);
 
         if (response.status !== 'ok' && response.status !== 'ended' && response.status !== 'stream-ended') {
             stopPublisher();
@@ -97,7 +76,7 @@ function stopPublisher() {
 }
 
 function setUserMessage(message) {
-    var userMessageElement = document.getElementById('userMessage');
+    const userMessageElement = document.getElementById('userMessage');
 
     userMessageElement.innerText = message;
 }
@@ -107,7 +86,7 @@ function displayElement(element) {
 }
 
 function hideElement(element) {
-    if (element.className.indexOf('hide') === -1) {
+    if (!element.className.includes('hide')) {
         element.className += ' hide';
     }
 }
