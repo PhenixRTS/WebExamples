@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>View Protected Channel</title>
+    <link rel="stylesheet" href="main.css">
+    <script>
+      __phenixPageLoadTime = new Date().getTime();
+    </script>
+    <!-- Update JsSDK version to `2025.2.latest` when JsSDK GA 2025.2.x is deployed -->
+    <script src="https://dl.phenixrts.com/JsSDK/2025.1.0-beta.469/protectedchannels/min/protectedchannels.js"></script>
+  </head>
+  <body class="main">
+    <h1>Phenix ProtectedChannel Viewer Example</h1>
+    <video id="my-video" width="1280" height="720" autoplay playsinline></video>
+    <br/>
+    <button id="play-button" class="hidden">Play</button>
+    <button id="unmute-button" class="hidden">Unmute</button>
+    <h2 id="user-message"></h2>
+    <p>Channel Status: <b id="channel-status-message"></b></p>
+    <p>Player Status: <b id="player-status-message"></b></p>
+    <script src="main.js"></script>
+  </body>
+</html>
