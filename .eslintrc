@@ -83,9 +83,9 @@
         // Rules specific to this module
         "indent": [2, 4],
         "notice/notice":["error", {
-            "mustMatch": "Copyright 2023 Phenix Real Time Solutions, Inc.",
+            "mustMatch": "Copyright 2025 Phenix Real Time Solutions, Inc.",
             "templateFile": "copyright.tmpl",
             "onNonMatchingHeader": "replace"
-        }],
+        }]
     }
 }

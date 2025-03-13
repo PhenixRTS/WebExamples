@@ -1,5 +1,5 @@
 /**
- * Copyright 2023 Phenix Real Time Solutions, Inc. All Rights Reserved.
+ * Copyright 2025 Phenix Real Time Solutions, Inc. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 const phenix = window['phenix'];
 const mainContainer = document.getElementById('main');
 const videoElement = document.getElementById('myVideoId');
